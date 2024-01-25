@@ -1,32 +1,25 @@
-﻿
-using InTheHand.Net.Bluetooth;
-using InTheHand.Net;
-using InTheHand.Net.Sockets;
+﻿using Microsoft.Win32;
 using MRTest.Infrastructure.Commands;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Net.Http;
+using System.Management;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-
+using System.Windows.Media;
 using WpfElmaBot_2._0_.ViewModels.Base;
-using System.Collections.ObjectModel;
-using System.Management;
-using Microsoft.Win32;
-using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace MRTest.ViewModels
 {
     public class MainWindowViewModel : ViewModel
     {
-        
+
         private static Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-        HandController handController = new HandController();
+        private string comPort = "";
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
 
         #region Свойства
@@ -34,9 +27,7 @@ namespace MRTest.ViewModels
         #region Анимация калибровки разжатия
 
         private string _calibrateMax = "Hidden"; //Visible
-        /// <summary>
-        /// Анимация загрузки
-        /// </summary>
+
         public string CalibrateMax
         {
             get => _calibrateMax;
@@ -44,10 +35,21 @@ namespace MRTest.ViewModels
         }
         #endregion
 
+        #region нет подключения
+
+        private string _notConnect = "Hidden"; //Visible
+
+        public string NotConnect
+        {
+            get => _notConnect;
+            set => Set(ref _notConnect, value);
+        }
+        #endregion
+
         #region Анимация сжатия
 
-        private string _calibrateMin = "Hidden"; 
-    
+        private string _calibrateMin = "Hidden";
+
         public string CalibrateMin
         {
             get => _calibrateMin;
@@ -57,13 +59,20 @@ namespace MRTest.ViewModels
 
         #region Видимость консоли ошибок
         private string _visibleError = "Hidden";
-        /// <summary>
-        /// свойство консоли ошибок
-        /// </summary>
         public string VisibleError
         {
             get => _visibleError;
             set => Set(ref _visibleError, value);
+        }
+        #endregion
+
+        #region Текс сообщения
+        private string _messageInfo = "";
+
+        public string MessageInfo
+        {
+            get => _messageInfo;
+            set => Set(ref _messageInfo, value);
         }
         #endregion
 
@@ -78,15 +87,22 @@ namespace MRTest.ViewModels
         }
         #endregion
 
-        #region цвет неполадок
-        private string _colorError = "Hidden";
-        /// <summary>
-        /// свойство кнопки ошибок
-        /// </summary>
-        public string ColorError
+        #region кружок запуска
+        private string _colorStart = "Hidden";
+        public string ColorStart
         {
-            get => _colorError;
-            set => Set(ref _colorError, value);
+            get => _colorStart;
+            set => Set(ref _colorStart, value);
+        }
+        #endregion
+
+        #region знак поиска
+        private SolidColorBrush _colorSearch;
+
+        public SolidColorBrush ColorSearch
+        {
+            get => _colorSearch;
+            set => Set(ref _colorSearch, value);
         }
         #endregion
 
@@ -105,11 +121,28 @@ namespace MRTest.ViewModels
 
         #region комбокос
 
-        private List<string> _comPorts= new List<string>();
+        private List<string> _comPorts = new List<string>();
         public List<string> ComPorts
         {
             get { return _comPorts; }
             set => Set(ref _comPorts, value);
+        }
+        #endregion
+
+        #region выбранный элемент комбокоса
+        private string _selectedComPort;
+
+        public string SelectedComPort
+        {
+            get { return _selectedComPort; }
+            set
+            {
+                if (_selectedComPort != value)
+                {
+                    _selectedComPort = value;
+                    OnPropertyChanged(nameof(SelectedComPort));
+                }
+            }
         }
         #endregion
 
@@ -120,11 +153,11 @@ namespace MRTest.ViewModels
         #region Команда поиска
         public ICommand SearchDevice { get; set; }
         private void OnSearcBtnCommandExecuted(object p)
-        {     
+        {
             try
             {
                 Search();
-                if(_comPorts.Count==0)
+                if (_comPorts.Count == 0)
                 {
                     MessageBox.Show("Устройство не найдено");
                 }
@@ -145,26 +178,40 @@ namespace MRTest.ViewModels
         public ICommand CalibrateBtnCommand { get; set; }
         private async void OnCalibrateBtnCommandExecuted(object p)
         {
-            CalibrateMin = "Visible";
-            await Task.Run(() => handController.CalibrateDeviceMin(""));
-            Application.Current.Dispatcher.Invoke(() => CalibrateMin = "Hidden");
+            try
+            {
+                comPort = comPort == "" ? SelectedComPort.Split(" ")[0] : comPort;
+                NotConnect = "Hidden";
+                CalibrateMin = "Visible";
+                MessageInfo = "Разожмите руку и удерживайте в течении 5 секунд";
+                var calMin = await Task.Run(() => new HandController(comPort).CalibrateDeviceMin(cancellationTokenSource, comPort));
+                Application.Current.Dispatcher.Invoke(() => CalibrateMin = "Hidden");
+                MessageInfo = HandController.message;
+                if (calMin)
+                {
+                    CalibrateMax = "Visible";
+                    await Task.Run(() => new HandController(comPort).CalibrateDeviceMax(cancellationTokenSource, comPort));
+                    Application.Current.Dispatcher.Invoke(() => CalibrateMax = "Hidden");
+                }
+                if(MessageInfo.Contains("подключ"))
+                {
+                    NotConnect = "Visible";
+                }    
+                MessageInfo.Remove(0);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("Object reference not set to an instance of an object"))
+                {
+                    ////MessageBox.Show("Выберите устройство!");
+                }
+            }
 
-            CalibrateMax = "Visible";
-            await Task.Run(() => handController.CalibrateDeviceMax(""));
-            Application.Current.Dispatcher.Invoke(() => CalibrateMax = "Hidden");
 
         }
         private bool CanCalibrateBtnCommandExecute(object p) => true;
         #endregion
 
-        #region Команда остановки
-        public ICommand ErrorBtnCommand { get; set; }
-        private void OnErrorBtnCommandExecuted(object p)
-        {
-            
-        }
-        private bool CanErrorBtnCommandExecute(object p) => true;
-        #endregion
 
         #region Команда кнопки выхода
         public ICommand CloseAppCommand { get; set; }
@@ -184,9 +231,18 @@ namespace MRTest.ViewModels
         public ICommand StartBtnCommand { get; set; }
         private void OnStartBtnCommandExecuted(object p)
         {
-            ColorError = "Visible";
+            ColorStart = "Visible";
         }
         private bool CanStartBtnCommandExecute(object p) => true;
+        #endregion
+
+        #region Команда кнопки помощи
+        public ICommand HelpBtnCommand { get; set; }
+        private void OnHelpBtnCommandExecuted(object p)
+        {
+            new InfoWindow().Show();
+        }
+        private bool CanHelpBtnCommandExecute(object p) => true;
         #endregion
 
         #region Команда кнопки остановить
@@ -194,7 +250,8 @@ namespace MRTest.ViewModels
         private void OnStopBtnCommandExecuted(object p)
         {
 
-            ColorError = "Hidden";
+            ColorStart = "Hidden";
+            cancellationTokenSource.Cancel();
 
 
         }
@@ -223,39 +280,36 @@ namespace MRTest.ViewModels
         {
             try
             {
-          
+
 
                 WindowState = WindowState.Normal;
+                ColorSearch = new SolidColorBrush(Colors.Red);
 
-               
 
                 #region Команды
                 SearchDevice = new LambdaCommand(OnSearcBtnCommandExecuted, CanSearchBtnCommandExecute);
                 CalibrateBtnCommand = new LambdaCommand(OnCalibrateBtnCommandExecuted, CanCalibrateBtnCommandExecute);
-                ErrorBtnCommand = new LambdaCommand(OnErrorBtnCommandExecuted, CanErrorBtnCommandExecute);
                 CloseAppCommand = new LambdaCommand(OnCloseAppCommandExecuted, CanCloseAppCommandExecute);
                 RollUpCommand = new LambdaCommand(OnRollUpCommandExecuted, CanRollUpCommandExecute);
                 StartBtnCommand = new LambdaCommand(OnStartBtnCommandExecuted, CanStartBtnCommandExecute);
                 StopBtnCommand = new LambdaCommand(OnStopBtnCommandExecuted, CanStopBtnCommandExecute);
+                HelpBtnCommand = new LambdaCommand(OnHelpBtnCommandExecuted, CanHelpBtnCommandExecute);
                 #endregion
-                
+
                 Search();
-                if (_comPorts.Count == 0)
-                {
-                    MessageBox.Show("Устройство не найдено");
-                }
+
 
             }
             catch (Exception ex)
             {
-              
+                
             }
         }
         private void Search()
         {
             try
             {
-                
+                _comPorts.Clear();
                 using (ManagementClass i_Entity = new ManagementClass("Win32_PnPEntity"))
                 {
                     const String CUR_CTRL = "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\";
@@ -313,6 +367,20 @@ namespace MRTest.ViewModels
 
                     }
                 }
+                if (_comPorts.Count != 0)
+                {
+                    foreach (string x in _comPorts)
+                    {
+                        if (x.Contains("MiroRehab") && x.Contains("Исходящий"))
+                        {
+                            comPort = x.Split(" ")[0];
+                            ColorSearch = new SolidColorBrush(Color.FromRgb(2, 190, 104)); // Цвет #02be68
+                            SelectedComPort = x;
+                            break;
+                        }
+                    }
+                }
+
 
             }
             catch (Exception ex)

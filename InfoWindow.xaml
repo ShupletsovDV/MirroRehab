@@ -5,17 +5,39 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MRTest"
         mc:Ignorable="d"
-        Title="InfoWindow" Height="150" Width="250"  WindowStyle="None" Opacity="0.9" WindowStartupLocation="CenterScreen" Background="Transparent">
+        Title="InfoWindow" Height="350" Width="250"  WindowStyle="None"  WindowStartupLocation="CenterScreen" AllowsTransparency="true" Background="Transparent">
     <Border x:Name="MainWind"  CornerRadius="20" Background="White" MouseDown="MainWind_MouseDown" >
 
-        <Grid>
+        <Grid >
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
-
-            <Label x:Name="info" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Разожмите руку и удерживайте 5 секунд"/>
-            <Button x:Name="exit" Grid.Row="1" Content="ok" Style="{StaticResource MenuButton}" HorizontalAlignment="Right" Click="exit_Click"/>
+            <RichTextBox  x:Name="infotxt" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalAlignment="Top" Margin="10 10 10 0" BorderThickness="0" MouseDown="MainWind_MouseDown" IsReadOnly="True" Cursor="Arrow">
+                <FlowDocument >
+                    <Paragraph FontSize="14" FontWeight="Bold" TextAlignment="Center">
+                        <Run Text="Подключение"/>
+                    </Paragraph>
+                    <Paragraph Margin="5 0 0 0" TextAlignment="Justify" >
+                        <Run Text="1. Если устройство не найдено (Красная галочка на кнопке поиска) - нажмите на поиск устройства."/>
+                        <LineBreak/>
+                        <Run Text="2. Выберете нужное устройство (Исходящий MiroRehab)"/>
+                        <LineBreak/>
+                        <Run Text="3. Откалибруйте его"/>
+                        <LineBreak/>
+                        <Run Text="4. Нажмите запустить"/>
+                    </Paragraph>
+                    <Paragraph FontSize="14" FontWeight="Bold" TextAlignment="Center">
+                        <Run Text="Ошибки"/>
+                    </Paragraph>
+                    <Paragraph  Margin="5 0 0 0" TextAlignment="Justify">
+                        <Run Text="1. Если устройство не найдено - нажмите на поиск устройства.    awddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddwadddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddwadddddddddddddddddddddddddddd"/>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+            <Label x:Name="info" Visibility="Hidden" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Разожмите руку и удерживайте 5 секунд" TextOptions.TextFormattingMode="Display"/>
+  
+            <Button Margin="0 0 10 0" x:Name="exit" Grid.Row="1" Cursor="Hand" Content="ok" Style="{StaticResource MenuButton}" HorizontalAlignment="Right" Click="exit_Click"/>
         </Grid>
     </Border>
 </Window>

@@ -25,8 +25,8 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Tag" Value="Visible"/>
-                        <Setter Property="Background" Value="#02be68"/>
-                    <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Background" Value="#e5e5e5"/>
+                    <Setter Property="Foreground" Value="Black"/>
                 </Trigger>
 
                 <Trigger Property="IsDefault" Value="True">

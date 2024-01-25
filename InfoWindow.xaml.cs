@@ -22,7 +22,9 @@ namespace MRTest
         public InfoWindow()
         {
             InitializeComponent();
-            info.Content ="разожмите руку и удерживайте 5 секунд";
+            //info.Content = "1. Если устройство не найдено, нажмите на поиск устройства.\r\n2. Выберете нужное устройство\r\n3. Откалируйте его\r\n4. Нажмите на запустить";
+            //infotxt.DataContext = "1. Если устройство не найдено, нажмите на поиск устройства.\r\n2. Выберете нужное устройство\r\n3. Откалируйте его\r\n4. Нажмите на запустить";
+
         }
 
         private void MainWind_MouseDown(object sender, MouseButtonEventArgs e)
