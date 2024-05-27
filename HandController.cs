@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
+using System.Media;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace MRTest
 {
@@ -14,8 +17,9 @@ namespace MRTest
     {
 
         public static string message = "";
+        private const int calibrationDuration = 5;
 
-        private static Dictionary<double, int> myDict = new Dictionary<double, int>
+        private static readonly Dictionary<double, int> myDict = new Dictionary<double, int>
         {
             {0.0, 0}, {0.1, 0}, {0.2, 0}, {0.3, 0}, {0.4, 1}, {0.5, 1}, {0.6, 1},
             {0.7, 2}, {0.8, 2}, {0.9, 2}, {1.0, 3}, {1.1, 3}, {1.2, 3}, {1.3, 4},
@@ -24,7 +28,7 @@ namespace MRTest
             {2.8, 9}, {2.9, 9}, {3.0, 9}, {3.1, 9}
         };
 
-        private static Dictionary<double, int> myDictIndex = new Dictionary<double, int>
+        private static readonly Dictionary<double, int> myDictIndex = new Dictionary<double, int>
         {
             {0.0, 9}, {0.1, 9}, {0.2, 9}, {0.3, 9}, {0.4, 8}, {0.5, 8}, {0.6, 8},
             {0.7, 7}, {0.8, 7}, {0.9, 7}, {1.0, 6}, {1.1, 6}, {1.2, 6}, {1.3, 5},
@@ -33,7 +37,7 @@ namespace MRTest
             {2.8, 0}, {2.9, 0}, {3.0, 0}, {3.1, 0}
         };
 
-        private static Dictionary<double, int> myDictThumb = new Dictionary<double, int>
+        private static readonly Dictionary<double, int> myDictThumb = new Dictionary<double, int>
         {
             {0.0, 0}, {0.1, 0}, {0.2, 1}, {0.3, 2}, {0.4, 3}, {0.5, 4}, {0.6, 5},
             {0.7, 6}, {0.8, 7}, {0.9, 8}, {1.0, 9}, {1.1, 9}, {1.2, 9}
@@ -42,7 +46,7 @@ namespace MRTest
         private double max = 2.6;
         private double min = 0.0;
 
-        private const int calibrationDuration = 5;
+        
         private List<List<double>> maxCalibrationData = new List<List<double>>();
         private List<List<double>> minCalibrationData = new List<List<double>>();
 
@@ -131,9 +135,6 @@ namespace MRTest
             double angRing = Math.Round(receiveData.data.fingers[3].ang[0], 1);
             double angPinky = Math.Round(receiveData.data.fingers[4].ang[0], 1);
 
-            #region if
-
-            #endregion
             (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
 
             string data = $"${myDictThumb[angThumb]}{myDictIndex[angIndex]}{myDictIndex[angMiddle]}{myDict[angRing]}{myDict[angPinky]}";
@@ -160,11 +161,7 @@ namespace MRTest
                 port.Close();
                 message = "Калибровка завершена";
                 MessageBox.Show(message);
-                MessageBox.Show($"Max Thumb: {CalibrateRezult.maxThumb}");
-                MessageBox.Show($"Max Index: {CalibrateRezult.maxIndex}");
-                MessageBox.Show($"Max Middle: {CalibrateRezult.maxMiddle}");
-                MessageBox.Show($"Max Ring: {CalibrateRezult.maxRing}");
-                MessageBox.Show($"Max Pinky: {CalibrateRezult.maxPinky}");
+             
             }
         }
         public bool CalibrateDeviceMin(CancellationTokenSource cancellationToken, string com)
@@ -200,6 +197,7 @@ namespace MRTest
         }
         private void SendToMirro(string data,SerialPort port)
         {
+            //c++ espidf freertos
             port.Write(data);
         }
         public List<List<double>> CollectCalibrationData(List<List<double>> calibrationData, CancellationTokenSource cancellationToken,SerialPort port)
@@ -222,16 +220,12 @@ namespace MRTest
 
                         if (receiveData != null && receiveData.type == "position")
                         {
-
                             double angThumb = Math.Round(receiveData.data.fingers[0].ang[0], 1);
                             double angIndex = Math.Round(receiveData.data.fingers[1].ang[0], 1);
                             double angMiddle = Math.Round(receiveData.data.fingers[2].ang[0], 1);
                             double angRing = Math.Round(receiveData.data.fingers[3].ang[0], 1);
                             double angPinky = Math.Round(receiveData.data.fingers[4].ang[0], 1);
 
-                            #region if
-
-                            #endregion
                             (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
 
                             calibrationData.Add(new List<double> { angThumb, angIndex, angMiddle, angRing, angPinky });
@@ -305,6 +299,7 @@ namespace MRTest
                 }
             }
         }
+        
         private void ErrorException(Exception e, CancellationTokenSource cancellationToken)
         {
 
@@ -321,6 +316,7 @@ namespace MRTest
             {
                 MessageBox.Show($"SocketException: {e.Message}");
             }
+           
             cancellationToken.Cancel();
            
 

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:local="clr-namespace:MRTest"
         mc:Ignorable="d"
         xmlns:vm ="clr-namespace:MRTest.ViewModels"
@@ -46,7 +47,6 @@
                                 <materialDesign:PackIcon Kind="Search" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
                                 <TextBlock Text="Поиск Mirro" FontSize="16"/>
                                 <materialDesign:PackIcon Kind="Success" VerticalAlignment="Center" Visibility="Visible" HorizontalAlignment="Right" Foreground="{Binding ColorSearch}"/>
-                                
                             </StackPanel>
                             
                         </Button>
@@ -136,12 +136,26 @@
                     
                 </WrapPanel>
                 <Border Grid.Row="1" CornerRadius="25" Margin="0 0 10 0" Visibility="Visible" Background="#e5e5e5" >
-                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 30">
+                    <!--<Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 30">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="20"/>
                         </Grid.RowDefinitions>
                         <Image Grid.Row="0" Source="/Resources/hand2.png"  Stretch="Fill" Height="100" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding CalibrateMin}">
+                            <Image.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0.2" Duration="0:0:1" AutoReverse="True"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Image.Triggers>
+                        </Image>
+                        <Image Grid.Row="0" Source="/Resources/checkMark.png"  Stretch="Fill" Height="100" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding ChekMark}">
+                            
+                        </Image>
+                        <Image Grid.Row="0" Source="/Resources/mistake.png"  Stretch="Fill" Height="100" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding MistakeSearch}">
                             <Image.Triggers>
                                 <EventTrigger RoutedEvent="Loaded">
                                     <BeginStoryboard>
@@ -175,9 +189,13 @@
                             </Image.Triggers>
                         </Image>
 
-                        <TextBlock Grid.Row="1" Text="{Binding MessageInfo}"  HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" Cursor="" />
+                        <TextBlock Grid.Row="1" Text="{Binding MessageInfo}"  HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold"  />
 
-                    </Grid>
+                    </Grid>-->
+                    <helix:HelixViewport3D x:Name="viewport" VerticalAlignment="Center" HorizontalAlignment="Center" Width="320" Height="270">
+                        <helix:DefaultLights/>
+                        <ModelVisual3D x:Name="modelVisual"/>
+                    </helix:HelixViewport3D>
                 </Border>
 
             </Grid>

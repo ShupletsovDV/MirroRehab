@@ -13,7 +13,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
-            <RichTextBox  x:Name="infotxt" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalAlignment="Top" Margin="10 10 10 0" BorderThickness="0" MouseDown="MainWind_MouseDown" IsReadOnly="True" Cursor="Arrow">
+            <RichTextBox  x:Name="infotxt" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalAlignment="Top" Margin="10 30 10 0" BorderThickness="0" MouseDown="MainWind_MouseDown" IsReadOnly="True" Cursor="Arrow">
                 <FlowDocument >
                     <Paragraph FontSize="14" FontWeight="Bold" TextAlignment="Center">
                         <Run Text="Подключение"/>

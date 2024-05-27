@@ -1,16 +1,21 @@
-﻿using Microsoft.Win32;
+﻿using HelixToolkit.Wpf;
+using Microsoft.Win32;
 using MRTest.Infrastructure.Commands;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Management;
+using System.Media;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using HelixToolkit.Wpf;
 using WpfElmaBot_2._0_.ViewModels.Base;
+using System.Windows.Media.Media3D;
 
 namespace MRTest.ViewModels
 {
@@ -43,6 +48,28 @@ namespace MRTest.ViewModels
         {
             get => _notConnect;
             set => Set(ref _notConnect, value);
+        }
+        #endregion
+
+        #region ошибка поиска
+
+        private string _mistakeSearch = "Hidden"; //Visible
+
+        public string MistakeSearch
+        {
+            get => _mistakeSearch;
+            set => Set(ref _mistakeSearch, value);
+        }
+        #endregion
+
+        #region успешный поиск
+
+        private string _chekMark = "Hidden"; //Visible
+
+        public string ChekMark
+        {
+            get => _chekMark;
+            set => Set(ref _chekMark, value);
         }
         #endregion
 
@@ -146,6 +173,10 @@ namespace MRTest.ViewModels
         }
         #endregion
 
+
+
+        
+
         #endregion
 
         #region Команды
@@ -156,10 +187,17 @@ namespace MRTest.ViewModels
         {
             try
             {
+                
+                NotConnect = "Hidden";
+                CalibrateMin = "Hidden";
+                CalibrateMax = "Hidden";
+                MistakeSearch= "Hidden";
+
                 Search();
                 if (_comPorts.Count == 0)
                 {
                     MessageBox.Show("Устройство не найдено");
+                 
                 }
 
             }
@@ -181,8 +219,12 @@ namespace MRTest.ViewModels
             try
             {
                 comPort = comPort == "" ? SelectedComPort.Split(" ")[0] : comPort;
-                NotConnect = "Hidden";
-                CalibrateMin = "Visible";
+
+                ChekMark        = "Hidden";
+                NotConnect      = "Hidden";
+                CalibrateMin    = "Visible";
+                MistakeSearch   = "Hidden";
+                
                 MessageInfo = "Разожмите руку и удерживайте в течении 5 секунд";
                 var calMin = await Task.Run(() => new HandController(comPort).CalibrateDeviceMin(cancellationTokenSource, comPort));
                 Application.Current.Dispatcher.Invoke(() => CalibrateMin = "Hidden");
@@ -195,12 +237,14 @@ namespace MRTest.ViewModels
                 }
                 if(MessageInfo.Contains("подключ"))
                 {
+                    ErrorSound();
                     NotConnect = "Visible";
                 }    
                 MessageInfo.Remove(0);
             }
             catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
                 if (ex.Message.Contains("Object reference not set to an instance of an object"))
                 {
                     ////MessageBox.Show("Выберите устройство!");
@@ -280,7 +324,7 @@ namespace MRTest.ViewModels
         {
             try
             {
-
+                
 
                 WindowState = WindowState.Normal;
                 ColorSearch = new SolidColorBrush(Colors.Red);
@@ -304,6 +348,17 @@ namespace MRTest.ViewModels
             {
                 
             }
+        }
+
+        private  void ErrorSound()
+        {
+            try
+            {
+                SystemSounds.Beep.Play();
+
+            }
+            catch(Exception ex) { MessageBox.Show(ex.Message); }
+
         }
         private void Search()
         {
@@ -367,6 +422,7 @@ namespace MRTest.ViewModels
 
                     }
                 }
+                int i = 0;
                 if (_comPorts.Count != 0)
                 {
                     foreach (string x in _comPorts)
@@ -376,9 +432,18 @@ namespace MRTest.ViewModels
                             comPort = x.Split(" ")[0];
                             ColorSearch = new SolidColorBrush(Color.FromRgb(2, 190, 104)); // Цвет #02be68
                             SelectedComPort = x;
+                            MessageInfo = "Устройство найдено!";
+                            ChekMark = "Visible";
+                            i++;
+                           
                             break;
                         }
                     }
+                }
+                if (i == 0)
+                {
+                    MessageInfo = "Устройство не найдено!";
+                    MistakeSearch = "Visible";
                 }
 
 
