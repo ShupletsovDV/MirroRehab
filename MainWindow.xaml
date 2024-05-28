@@ -136,7 +136,7 @@
                     
                 </WrapPanel>
                 <Border Grid.Row="1" CornerRadius="25" Margin="0 0 10 0" Visibility="Visible" Background="#e5e5e5" >
-                    <!--<Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 30">
+                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 30">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="20"/>
@@ -166,7 +166,7 @@
                                 </EventTrigger>
                             </Image.Triggers>
                         </Image>
-                        <Image Grid.Row="0" Source="/Resources/NotConnect.png" Stretch="Fill" Height="100" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding NotConnect}" >
+                        <Image Grid.Row="0" Source="/Resources/NotConnect.png" Stretch="Fill" Height="100" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding NotConnectSenso}" >
                             <Image.Triggers>
                                 <EventTrigger RoutedEvent="Loaded">
                                     <BeginStoryboard>
@@ -188,14 +188,12 @@
                                 </EventTrigger>
                             </Image.Triggers>
                         </Image>
+                        <local:DonutSpinner  Grid.Row="0" Height="80" Width="80" Margin="10, 0" Duration="0:0:2" SpinnerColor="#FE6100" Visibility="{Binding ConnectinPort}"/>
 
                         <TextBlock Grid.Row="1" Text="{Binding MessageInfo}"  HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold"  />
 
-                    </Grid>-->
-                    <helix:HelixViewport3D x:Name="viewport" VerticalAlignment="Center" HorizontalAlignment="Center" Width="320" Height="270">
-                        <helix:DefaultLights/>
-                        <ModelVisual3D x:Name="modelVisual"/>
-                    </helix:HelixViewport3D>
+                    </Grid>
+                   
                 </Border>
 
             </Grid>

@@ -12,9 +12,7 @@
     <None Remove="Resources\1.jpg" />
     <None Remove="Resources\3.jpg" />
     <None Remove="Resources\4.jpg" />
-    <None Remove="Resources\Arm3.obj" />
     <None Remove="Resources\checkMark.png" />
-    <None Remove="Resources\hand.obj" />
     <None Remove="Resources\hand1.png" />
     <None Remove="Resources\hand2.png" />
     <None Remove="Resources\logo.png" />
@@ -25,12 +23,6 @@
 
   <ItemGroup>
     <Content Include="logo1.ico" />
-    <Content Include="Resources\Arm3.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\hand.obj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +30,7 @@
     <PackageReference Include="HelixToolkit.Wpf" Version="2.25.0" />
     <PackageReference Include="MahApps.Metro.IconPacks.MaterialDesign" Version="4.11.0" />
     <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.Management" Version="8.0.0" />

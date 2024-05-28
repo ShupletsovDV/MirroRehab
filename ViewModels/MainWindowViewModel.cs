@@ -1,6 +1,9 @@
 ﻿using HelixToolkit.Wpf;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using MRTest.Infrastructure.Commands;
+using MRTest.Interfaces;
+using MRTest.Services;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -12,10 +15,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-
-using HelixToolkit.Wpf;
 using WpfElmaBot_2._0_.ViewModels.Base;
-using System.Windows.Media.Media3D;
+
 
 namespace MRTest.ViewModels
 {
@@ -26,6 +27,10 @@ namespace MRTest.ViewModels
         private string comPort = "";
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
+        private HandController1 handController;
+        private Notifications notifications;
+
+     
 
         #region Свойства
 
@@ -42,14 +47,26 @@ namespace MRTest.ViewModels
 
         #region нет подключения
 
-        private string _notConnect = "Hidden"; //Visible
+        private string _notConnectSenso = "Hidden"; //Visible
 
-        public string NotConnect
+        public string NotConnectSenso
         {
-            get => _notConnect;
-            set => Set(ref _notConnect, value);
+            get => _notConnectSenso;
+            set => Set(ref _notConnectSenso, value);
         }
         #endregion
+
+        #region подключение к порту
+
+        private string _connectinPort = "Hidden"; //Visible
+
+        public string ConnectinPort
+        {
+            get => _connectinPort;
+            set => Set(ref _connectinPort, value);
+        }
+        #endregion
+
 
         #region ошибка поиска
 
@@ -73,7 +90,7 @@ namespace MRTest.ViewModels
         }
         #endregion
 
-        #region Анимация сжатия
+        #region Анимация калибровки сжатия
 
         private string _calibrateMin = "Hidden";
 
@@ -188,10 +205,11 @@ namespace MRTest.ViewModels
             try
             {
                 
-                NotConnect = "Hidden";
+                NotConnectSenso = "Hidden";
                 CalibrateMin = "Hidden";
                 CalibrateMax = "Hidden";
                 MistakeSearch= "Hidden";
+                ConnectinPort = "Hidden";
 
                 Search();
                 if (_comPorts.Count == 0)
@@ -218,33 +236,40 @@ namespace MRTest.ViewModels
         {
             try
             {
-                comPort = comPort == "" ? SelectedComPort.Split(" ")[0] : comPort;
-
-                ChekMark        = "Hidden";
-                NotConnect      = "Hidden";
-                CalibrateMin    = "Visible";
-                MistakeSearch   = "Hidden";
+                comPort = string.IsNullOrEmpty(comPort) ? SelectedComPort.Split(" ")[0] : comPort;
                 
-                MessageInfo = "Разожмите руку и удерживайте в течении 5 секунд";
-                var calMin = await Task.Run(() => new HandController(comPort).CalibrateDeviceMin(cancellationTokenSource, comPort));
-                Application.Current.Dispatcher.Invoke(() => CalibrateMin = "Hidden");
-                MessageInfo = HandController.message;
-                if (calMin)
+                #region last
+                /* MessageInfo = "Разожмите руку и удерживайте в течении 5 секунд";
+                 var calMin = await Task.Run(() => new HandController(comPort).CalibrateDeviceMin(cancellationTokenSource, comPort));
+                 Application.Current.Dispatcher.Invoke(() => CalibrateMin = "Hidden");
+                 MessageInfo = HandController.message;
+                 if (calMin)
+                 {
+                     CalibrateMax = "Visible";
+                     await Task.Run(() => new HandController(comPort).CalibrateDeviceMax(cancellationTokenSource, comPort));
+                     Application.Current.Dispatcher.Invoke(() => CalibrateMax = "Hidden");
+                 }
+                 if(MessageInfo.Contains("подключ"))
+                 {
+                     ErrorSound();
+                     NotConnect = "Visible";
+                 }    
+                 MessageInfo.Remove(0);*/
+                #endregion
+                handController = HandController1.GetHandController();
+                bool chekPort = await Task.Run(() => handController.CheckPort(comPort));
+                var succesCalibration =chekPort?await Task.Run(()=>handController.CalibrateDevice(comPort)):false;
+                if(!succesCalibration)
                 {
-                    CalibrateMax = "Visible";
-                    await Task.Run(() => new HandController(comPort).CalibrateDeviceMax(cancellationTokenSource, comPort));
-                    Application.Current.Dispatcher.Invoke(() => CalibrateMax = "Hidden");
+                    MessageInfo = "Что то пошло не так";
                 }
-                if(MessageInfo.Contains("подключ"))
-                {
-                    ErrorSound();
-                    NotConnect = "Visible";
-                }    
-                MessageInfo.Remove(0);
+                
+
+                
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.InnerException.Message);
                 if (ex.Message.Contains("Object reference not set to an instance of an object"))
                 {
                     ////MessageBox.Show("Выберите устройство!");
@@ -253,6 +278,9 @@ namespace MRTest.ViewModels
 
 
         }
+
+        
+
         private bool CanCalibrateBtnCommandExecute(object p) => true;
         #endregion
 
@@ -324,8 +352,8 @@ namespace MRTest.ViewModels
         {
             try
             {
-                
 
+               
                 WindowState = WindowState.Normal;
                 ColorSearch = new SolidColorBrush(Colors.Red);
 
@@ -339,6 +367,8 @@ namespace MRTest.ViewModels
                 StopBtnCommand = new LambdaCommand(OnStopBtnCommandExecuted, CanStopBtnCommandExecute);
                 HelpBtnCommand = new LambdaCommand(OnHelpBtnCommandExecuted, CanHelpBtnCommandExecute);
                 #endregion
+                notifications = Notifications.GetNotifications();
+                notifications.OnCommonPushpin += Notifications_OnCommonPushpin;
 
                 Search();
 
@@ -350,7 +380,52 @@ namespace MRTest.ViewModels
             }
         }
 
-        private  void ErrorSound()
+        private void Notifications_OnCommonPushpin(string message, Notifications.NotificationEvents notificationEvents)
+        {
+           
+            MessageInfo = message;
+            if (notificationEvents == Notifications.NotificationEvents.ConnectionPort)
+            {
+                ConnectinPort = "Visible";
+                NotConnectSenso = "Hidden";
+                CalibrateMax = "Hidden";
+                CalibrateMin = "Hidden";
+                MistakeSearch = "Hidden";
+            }
+            if (notificationEvents==Notifications.NotificationEvents.NotConnectionPort)
+            {
+                NotConnectSenso = "Visible";
+                ConnectinPort= "Hidden";
+                CalibrateMax = "Hidden";
+                CalibrateMin = "Hidden";
+                MistakeSearch = "Hidden";
+            }
+            if (notificationEvents == Notifications.NotificationEvents.CalibrateMax)
+            {
+                CalibrateMax = "Visible";
+                CalibrateMin = "Hidden";
+                ConnectinPort = "Hidden";
+                NotConnectSenso = "Hidden";
+                MistakeSearch = "Hidden";
+            }
+            if (notificationEvents == Notifications.NotificationEvents.CalibrateMin)
+            {
+                CalibrateMin = "Visible";
+                ConnectinPort = "Hidden";
+                NotConnectSenso = "Hidden";
+                CalibrateMax = "Hidden";
+                MistakeSearch = "Hidden";
+            }
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton<ICalibrationService, CalibrationService>();
+            services.AddSingleton<ISerialPortService, SerialPortService>();
+            services.AddSingleton<IUdpClientService, UdpClientService>();
+        }
+
+        private void ErrorSound()
         {
             try
             {
@@ -422,6 +497,20 @@ namespace MRTest.ViewModels
 
                     }
                 }
+                FindNeedCom();
+
+            }
+            catch (Exception ex)
+            {
+                //TODO лог
+                MessageBox.Show("Ошибка при чтении реестра: " + ex.Message);
+            }
+        }
+
+        private void FindNeedCom()
+        {
+            try
+            {
                 int i = 0;
                 if (_comPorts.Count != 0)
                 {
@@ -435,7 +524,7 @@ namespace MRTest.ViewModels
                             MessageInfo = "Устройство найдено!";
                             ChekMark = "Visible";
                             i++;
-                           
+
                             break;
                         }
                     }
@@ -445,13 +534,10 @@ namespace MRTest.ViewModels
                     MessageInfo = "Устройство не найдено!";
                     MistakeSearch = "Visible";
                 }
-
-
             }
             catch (Exception ex)
-            {
-                // Обработка ошибки чтения реестра
-                MessageBox.Show("Ошибка при чтении реестра: " + ex.Message);
+            { 
+             //TODO лог
             }
         }
     }

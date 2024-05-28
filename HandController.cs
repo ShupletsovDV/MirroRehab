@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MRTest.Interfaces;
+using MRTest.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
@@ -10,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+
 
 namespace MRTest
 {
@@ -42,6 +45,9 @@ namespace MRTest
             {0.0, 0}, {0.1, 0}, {0.2, 1}, {0.3, 2}, {0.4, 3}, {0.5, 4}, {0.6, 5},
             {0.7, 6}, {0.8, 7}, {0.9, 8}, {1.0, 9}, {1.1, 9}, {1.2, 9}
         };
+        public delegate void CommonLog(string message);
+        public event CommonLog OnCommonPushpin;
+
 
         private double max = 2.6;
         private double min = 0.0;
@@ -51,6 +57,7 @@ namespace MRTest
         private List<List<double>> minCalibrationData = new List<List<double>>();
 
         private UdpClient client;
+        private ICalibrationService calib;
         
         private const int baudRate = 9600;
         public HandController(string com)
@@ -78,7 +85,11 @@ namespace MRTest
             }
            
         }
-       private (double,double,double,double,double) MaxMin(double angThumb,double angIndex,double angMiddle, double angRing, double angPinky) //TODO перенести сюда ифы
+        public void InvokeCommonStatus(string msg)
+        {
+            OnCommonPushpin?.Invoke(msg);
+        }
+        private (double,double,double,double,double) MaxMin(double angThumb,double angIndex,double angMiddle, double angRing, double angPinky) //TODO перенести сюда ифы
         {
             if (angThumb < 0)
             {
