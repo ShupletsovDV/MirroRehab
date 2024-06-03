@@ -16,13 +16,21 @@ namespace MRTest.Services
 
         public void OpenPort(string comPort)
         {
-            if (_serialPort != null && _serialPort.IsOpen)
+            try
             {
-                _serialPort.Close();
+                if (_serialPort != null && _serialPort.IsOpen)
+                {
+                    _serialPort.Close();
+                }
+
+                _serialPort = new SerialPort(comPort, 9600);
+                _serialPort.Open();
+            }
+            catch 
+            {
+                throw new Exception();
             }
 
-            _serialPort = new SerialPort(comPort, 9600);
-            _serialPort.Open();
         }
 
         public void ClosePort()
@@ -37,7 +45,7 @@ namespace MRTest.Services
         {
             if (_serialPort != null && _serialPort.IsOpen)
             {
-                _serialPort.Write(data);
+                _serialPort.WriteLine(data);
             }
             else
             {

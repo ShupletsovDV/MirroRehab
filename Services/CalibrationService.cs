@@ -25,11 +25,15 @@ namespace MRTest.Services
                 (CalibrateRezult.maxThumb, CalibrateRezult.maxIndex, CalibrateRezult.maxMiddle, CalibrateRezult.maxRing, CalibrateRezult.maxPinky) = CalculateAverages(maxCalibrationData);
                
             }
-            catch(Exception ex)
+            catch (ArgumentException ex)
             {
-                throw new ArgumentException("",ex);
+                throw new ArgumentException(ex.Message, ex.InnerException);
             }
-             
+            catch
+            {
+                throw new Exception();
+            }
+
 
         }
 
@@ -44,9 +48,13 @@ namespace MRTest.Services
                 (CalibrateRezult.minThumb, CalibrateRezult.minIndex, CalibrateRezult.minMiddle, CalibrateRezult.minRing, CalibrateRezult.minPinky) = CalculateAverages(minCalibrationData);
                
             }
-            catch (Exception ex)
+            catch (ArgumentException ex)
             {
-                throw new ArgumentException("", ex);
+                throw new ArgumentException(ex.Message, ex.InnerException);
+            }
+            catch
+            {
+                throw new Exception();
             }
 
 
@@ -82,6 +90,7 @@ namespace MRTest.Services
             {
                 double startTime = Environment.TickCount;
                 _udpClientService.StartPing();
+                
 
                 while (Environment.TickCount - startTime < 5 * 1000)
                 {
@@ -91,7 +100,7 @@ namespace MRTest.Services
 
                         if (receiveData != null && receiveData.type == "position")
                         {
-                            double angThumb = Math.Round(receiveData.data.fingers[0].ang[0], 1);
+                            double angThumb = Math.Round(receiveData.data.fingers[0].ang[0], 2);
                             double angIndex = Math.Round(receiveData.data.fingers[1].ang[0], 1);
                             double angMiddle = Math.Round(receiveData.data.fingers[2].ang[0], 1);
                             double angRing = Math.Round(receiveData.data.fingers[3].ang[0], 1);
@@ -100,20 +109,20 @@ namespace MRTest.Services
                             (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
 
                             calibrationData.Add(new List<double> { angThumb, angIndex, angMiddle, angRing, angPinky });
-                            string data = $"${Dictionaries.MyDictThumb[angThumb]}{Dictionaries.MyDictIndex[angIndex]}{Dictionaries.MyDictIndex[angMiddle]}{Dictionaries.MyDict[angRing]}{Dictionaries.MyDict[angPinky]}";
+                            string data = $"{Dictionaries.MyDictThumb[angThumb]},{Dictionaries.MyDict[angIndex]},{Dictionaries.MyDict[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]}\n";
                             _serialPortService.SendData(data);
                         }
                     }
                     catch(Exception ex)
                     {
-
+                        throw new ArgumentException(ex.Message, ex);
                     }
                 }
                
             }
             catch (Exception ex)
             {
-               throw new ArgumentException("", ex);
+               throw new ArgumentException(ex.Message, ex);
             }
 
             return calibrationData;

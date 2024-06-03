@@ -26,6 +26,7 @@ namespace MRTest.Services
             NotConnectionPort,
             CalibrateMax,
             CalibrateMin,
+            Success
           
         }
         public void InvokeCommonStatus(string msg,NotificationEvents notificationEvents)

@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace MRTest.Services
 {
@@ -18,7 +19,8 @@ namespace MRTest.Services
         public UdpClientService()
         {
             _client = new UdpClient();
-            _remoteEP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 53450);
+            _remoteEP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 53452);
+           
         }
 
         public void StartPing()
@@ -28,14 +30,20 @@ namespace MRTest.Services
              
         }
 
-        public dynamic ReceiveData()
+        public JsonModel ReceiveData()
         {
-            byte[] receiveBytes = _client.Receive(ref _remoteEP);
+            string messageString = "ping";
+            byte[] messageBytes = Encoding.ASCII.GetBytes(messageString);
+            IPEndPoint remoteEP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 53450);
+            _client.Send(messageBytes, messageBytes.Length, remoteEP);
+            
+            byte[] receiveBytes = _client.Receive(ref remoteEP);
+            //MessageBox.Show(receiveBytes + "");
             string receiveString = Encoding.ASCII.GetString(receiveBytes).TrimEnd('\0');
             return Newtonsoft.Json.JsonConvert.DeserializeObject<JsonModel>(receiveString);
         }
 
-        public void HandleError(Exception e, CancellationTokenSource cancellationToken)
+        public void HandleError( CancellationToken cancellationToken)
         {
             // Error handling logic
         }

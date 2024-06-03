@@ -5,6 +5,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace MRTest.Services
 {
@@ -12,23 +13,34 @@ namespace MRTest.Services
     {
         public void ProcessPosition(dynamic receiveData, ISerialPortService serialPortService)
         {
-            double angThumb = Math.Round(receiveData.data.fingers[0].ang[0], 1);
-            double angIndex = Math.Round(receiveData.data.fingers[1].ang[0], 1);
-            double angMiddle = Math.Round(receiveData.data.fingers[2].ang[0], 1);
-            double angRing = Math.Round(receiveData.data.fingers[3].ang[0], 1);
-            double angPinky = Math.Round(receiveData.data.fingers[4].ang[0], 1);
+            try
+            {
 
-            (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
 
-            string data = $"${Dictionaries.MyDictThumb[angThumb]}{Dictionaries.MyDictIndex[angIndex]}{Dictionaries.MyDictIndex[angMiddle]}{Dictionaries.MyDict[angRing]}{Dictionaries.MyDict[angPinky]}";
+                double angThumb = Math.Round(receiveData.data.fingers[0].ang[0], 2);
+                double angIndex = Math.Round(receiveData.data.fingers[1].ang[0], 1);
+                double angMiddle = Math.Round(receiveData.data.fingers[2].ang[0], 1);
+                double angRing = Math.Round(receiveData.data.fingers[3].ang[0], 1);
+                double angPinky = Math.Round(receiveData.data.fingers[4].ang[0], 1);
 
-            serialPortService.SendData(data);
+                (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
+
+                string data = $"{Dictionaries.MyDictThumb[angThumb]},{Dictionaries.MyDict[angIndex]},{Dictionaries.MyDict[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]}\n";
+                string test = $"{angThumb}   {angIndex}  {angMiddle}  {angRing}  {angPinky}";
+                serialPortService.SendData(data);
+                Notifications.GetNotifications().InvokeCommonStatus(test, Notifications.NotificationEvents.CalibrateMin);
+            }
+            catch
+            {
+                throw new Exception();
+            }
+
         }
         private (double, double, double, double, double) MaxMin(double angThumb, double angIndex, double angMiddle, double angRing, double angPinky)
         {
             if (angThumb < 0)
             {
-                angThumb = 0.0;
+                angThumb = 0.00;
             }
             if (angThumb > CalibrateRezult.maxThumb)
             {

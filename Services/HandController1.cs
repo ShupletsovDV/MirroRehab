@@ -1,4 +1,5 @@
 ﻿using MRTest.Interfaces;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
@@ -60,41 +61,79 @@ namespace MRTest.Services
         {
             try
             {
+                _udpClientService.StartPing();
                 Notifications.GetNotifications().InvokeCommonStatus("Подключение к устройству", Notifications.NotificationEvents.ConnectionPort);
                 _serialPortService.OpenPort(com);
-                Notifications.GetNotifications().InvokeCommonStatus("Разожмите руку",Notifications.NotificationEvents.CalibrateMax);
-                _calibrationService.CalibrateMax(_serialPortService, _udpClientService);
-                Notifications.GetNotifications().InvokeCommonStatus("Сожмите руку", Notifications.NotificationEvents.CalibrateMin);
+                Notifications.GetNotifications().InvokeCommonStatus("Разожмите руку и удерживайте",Notifications.NotificationEvents.CalibrateMin);
+                Thread.Sleep(3000);
                 _calibrationService.CalibrateMin(_serialPortService, _udpClientService);
+                Notifications.GetNotifications().InvokeCommonStatus("Сожмите руку и удерживайте", Notifications.NotificationEvents.CalibrateMax);
+                Thread.Sleep(3000);
+                _calibrationService.CalibrateMax(_serialPortService, _udpClientService);
                 _serialPortService.ClosePort();
                 return true;
             }
             catch(Exception ex)
             {
+                if(ex.Message.Contains("Удаленный хост"))
+                {
+                    Notifications.GetNotifications().InvokeCommonStatus("Убедитесь, что перчатка Senso подключена", Notifications.NotificationEvents.NotConnectionPort);
+                }
                 return false;
             }
         }
 
        
 
-        public void StartTracking(CancellationTokenSource cancellationToken, SerialPort port)
+        public bool StartTracking(CancellationToken cancellationToken,string com)
         {
-            _udpClientService.StartPing();
-            while (true)
+            try
             {
-                try
+                _udpClientService.StartPing();
+                _serialPortService.OpenPort(com);
+                while (true)
                 {
-                    var receiveData = _udpClientService.ReceiveData();
-                    if (receiveData != null && receiveData.Type == "position")
+                    try
                     {
-                        //_positionProcessor.ProcessPosition(receiveData, port);
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            _serialPortService.ClosePort();
+                            break;
+                        }
+
+                        var receiveData = _udpClientService.ReceiveData();
+
+
+                        if (receiveData != null && receiveData.type == "position")
+                        {
+                            _positionProcessor.ProcessPosition(receiveData, _serialPortService);
+                        }
+
+                    }
+                    catch(Exception ex)
+                    {
+                        if(ex.Message.Contains("Удаленный хост"))
+                        {
+                            Notifications.GetNotifications().InvokeCommonStatus("Убедитесь, что перчатка Senso подключена", Notifications.NotificationEvents.NotConnectionPort);
+
+                        }
+                        else
+                        {
+                            Notifications.GetNotifications().InvokeCommonStatus("Что то пошло не так", Notifications.NotificationEvents.NotConnectionPort);
+                        }
+                       
+                        _serialPortService.ClosePort();
+                        _udpClientService.HandleError(cancellationToken);
+                        break;
                     }
                 }
-                catch (SocketException e)
-                {
-                    _udpClientService.HandleError(e, cancellationToken);
-                    break;
-                }
+                return true;
+            }
+            catch
+            {
+                
+                Notifications.GetNotifications().InvokeCommonStatus("Не удалось подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
+                return false;
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using HelixToolkit.Wpf;
+﻿
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using MRTest.Infrastructure.Commands;
@@ -25,23 +25,30 @@ namespace MRTest.ViewModels
 
         private static Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         private string comPort = "";
-        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource _cancellationTokenSource;
 
         private HandController1 handController;
         private Notifications notifications;
 
-     
+
 
         #region Свойства
 
+        private string _pathImage = "";
+        public string PathImage
+        {
+            get => _pathImage;
+            set => Set(ref _pathImage,value);
+        }
+
         #region Анимация калибровки разжатия
 
-        private string _calibrateMax = "Hidden"; //Visible
+        private string _imageVisible = "Visible"; //Visible
 
-        public string CalibrateMax
+        public string ImageVisible
         {
-            get => _calibrateMax;
-            set => Set(ref _calibrateMax, value);
+            get => _imageVisible;
+            set => Set(ref _imageVisible, value);
         }
         #endregion
 
@@ -205,11 +212,7 @@ namespace MRTest.ViewModels
             try
             {
                 
-                NotConnectSenso = "Hidden";
-                CalibrateMin = "Hidden";
-                CalibrateMax = "Hidden";
-                MistakeSearch= "Hidden";
-                ConnectinPort = "Hidden";
+                
 
                 Search();
                 if (_comPorts.Count == 0)
@@ -237,7 +240,7 @@ namespace MRTest.ViewModels
             try
             {
                 comPort = string.IsNullOrEmpty(comPort) ? SelectedComPort.Split(" ")[0] : comPort;
-                
+
                 #region last
                 /* MessageInfo = "Разожмите руку и удерживайте в течении 5 секунд";
                  var calMin = await Task.Run(() => new HandController(comPort).CalibrateDeviceMin(cancellationTokenSource, comPort));
@@ -256,14 +259,26 @@ namespace MRTest.ViewModels
                  }    
                  MessageInfo.Remove(0);*/
                 #endregion
-                handController = HandController1.GetHandController();
-                bool chekPort = await Task.Run(() => handController.CheckPort(comPort));
-                var succesCalibration =chekPort?await Task.Run(()=>handController.CalibrateDevice(comPort)):false;
-                if(!succesCalibration)
+
+                var chekPort = await Task.Run(()=>handController.CheckPort(comPort));
+                if(chekPort)
                 {
-                    MessageInfo = "Что то пошло не так";
+                    var succesCalibration =  await Task.Run(() => handController.CalibrateDevice(comPort));
+                    if(succesCalibration)
+                    {
+                        Notifications_OnCommonPushpin("Устройство откалибровано", Notifications.NotificationEvents.Success);
+                    }
+                    else
+                    {
+                        ErrorSound();
+                        //Notifications_OnCommonPushpin("Что то пошло не так", Notifications.NotificationEvents.NotConnectionPort);
+                    }
                 }
-                
+                else
+                {
+                    ErrorSound();
+                    Notifications_OnCommonPushpin("Не удается подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
+                }
 
                 
             }
@@ -278,9 +293,6 @@ namespace MRTest.ViewModels
 
 
         }
-
-        
-
         private bool CanCalibrateBtnCommandExecute(object p) => true;
         #endregion
 
@@ -301,9 +313,27 @@ namespace MRTest.ViewModels
 
         #region Команда кнопки запустить
         public ICommand StartBtnCommand { get; set; }
-        private void OnStartBtnCommandExecuted(object p)
+        private async void OnStartBtnCommandExecuted(object p)
         {
             ColorStart = "Visible";
+            ImageVisible = "Hidden";
+            ConnectinPort = "Visible";
+            MessageInfo = "Запуск...";
+            _cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken token = _cancellationTokenSource.Token;
+            var start= await Task.Run(()=>handController.StartTracking(token,comPort));
+            if(start)
+            {
+                ColorStart = "Hidden";
+            }
+            else
+            {
+                ColorStart =  "Hidden";
+                ErrorSound();
+            }
+            
+
+
         }
         private bool CanStartBtnCommandExecute(object p) => true;
         #endregion
@@ -323,7 +353,7 @@ namespace MRTest.ViewModels
         {
 
             ColorStart = "Hidden";
-            cancellationTokenSource.Cancel();
+            _cancellationTokenSource?.Cancel();
 
 
         }
@@ -357,8 +387,7 @@ namespace MRTest.ViewModels
                 WindowState = WindowState.Normal;
                 ColorSearch = new SolidColorBrush(Colors.Red);
 
-
-                #region Команды
+                #region Инициализация команд
                 SearchDevice = new LambdaCommand(OnSearcBtnCommandExecuted, CanSearchBtnCommandExecute);
                 CalibrateBtnCommand = new LambdaCommand(OnCalibrateBtnCommandExecuted, CanCalibrateBtnCommandExecute);
                 CloseAppCommand = new LambdaCommand(OnCloseAppCommandExecuted, CanCloseAppCommandExecute);
@@ -367,6 +396,9 @@ namespace MRTest.ViewModels
                 StopBtnCommand = new LambdaCommand(OnStopBtnCommandExecuted, CanStopBtnCommandExecute);
                 HelpBtnCommand = new LambdaCommand(OnHelpBtnCommandExecuted, CanHelpBtnCommandExecute);
                 #endregion
+
+                handController = HandController1.GetHandController();
+
                 notifications = Notifications.GetNotifications();
                 notifications.OnCommonPushpin += Notifications_OnCommonPushpin;
 
@@ -376,7 +408,8 @@ namespace MRTest.ViewModels
             }
             catch (Exception ex)
             {
-                
+                MessageBox.Show(ex.Message);
+                ErrorSound();
             }
         }
 
@@ -387,34 +420,33 @@ namespace MRTest.ViewModels
             if (notificationEvents == Notifications.NotificationEvents.ConnectionPort)
             {
                 ConnectinPort = "Visible";
-                NotConnectSenso = "Hidden";
-                CalibrateMax = "Hidden";
-                CalibrateMin = "Hidden";
-                MistakeSearch = "Hidden";
+                ImageVisible = "Hidden";
+
+
             }
             if (notificationEvents==Notifications.NotificationEvents.NotConnectionPort)
             {
-                NotConnectSenso = "Visible";
-                ConnectinPort= "Hidden";
-                CalibrateMax = "Hidden";
-                CalibrateMin = "Hidden";
-                MistakeSearch = "Hidden";
+                ImageVisible = "Visible";
+                ConnectinPort = "Hidden";
+                 PathImage = "/Resources/NotConnect.png";
             }
             if (notificationEvents == Notifications.NotificationEvents.CalibrateMax)
             {
-                CalibrateMax = "Visible";
-                CalibrateMin = "Hidden";
+                ImageVisible = "Visible";
                 ConnectinPort = "Hidden";
-                NotConnectSenso = "Hidden";
-                MistakeSearch = "Hidden";
+                PathImage = "/Resources/hand1.png";
             }
             if (notificationEvents == Notifications.NotificationEvents.CalibrateMin)
             {
-                CalibrateMin = "Visible";
+                ImageVisible = "Visible";
                 ConnectinPort = "Hidden";
-                NotConnectSenso = "Hidden";
-                CalibrateMax = "Hidden";
-                MistakeSearch = "Hidden";
+                PathImage = "/Resources/hand2.png";
+            }
+            if(notificationEvents==Notifications.NotificationEvents.Success)
+            {
+                ImageVisible = "Visible";
+                ConnectinPort = "Hidden";
+                PathImage = "/Resources/checkMark.png";
             }
         }
 
@@ -516,13 +548,14 @@ namespace MRTest.ViewModels
                 {
                     foreach (string x in _comPorts)
                     {
-                        if (x.Contains("MiroRehab") && x.Contains("Исходящий"))
+                        if (x.Contains("MirroRehab") && x.Contains("Исходящий"))
                         {
                             comPort = x.Split(" ")[0];
                             ColorSearch = new SolidColorBrush(Color.FromRgb(2, 190, 104)); // Цвет #02be68
                             SelectedComPort = x;
                             MessageInfo = "Устройство найдено!";
                             ChekMark = "Visible";
+                            PathImage = "/Resources/checkMark.png";
                             i++;
 
                             break;
@@ -532,7 +565,7 @@ namespace MRTest.ViewModels
                 if (i == 0)
                 {
                     MessageInfo = "Устройство не найдено!";
-                    MistakeSearch = "Visible";
+                    PathImage = "/Resources/mistake.png";
                 }
             }
             catch (Exception ex)

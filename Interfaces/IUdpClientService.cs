@@ -10,8 +10,8 @@ namespace MRTest.Interfaces
     public interface IUdpClientService
     {
         void StartPing();
-        dynamic ReceiveData();
-        void HandleError(Exception e, CancellationTokenSource cancellationToken);
+        JsonModel ReceiveData();
+        void HandleError( CancellationToken cancellationToken);
     }
 
 }
