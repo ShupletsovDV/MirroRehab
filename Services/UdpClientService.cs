@@ -38,7 +38,6 @@ namespace MRTest.Services
             _client.Send(messageBytes, messageBytes.Length, remoteEP);
             
             byte[] receiveBytes = _client.Receive(ref remoteEP);
-            //MessageBox.Show(receiveBytes + "");
             string receiveString = Encoding.ASCII.GetString(receiveBytes).TrimEnd('\0');
             return Newtonsoft.Json.JsonConvert.DeserializeObject<JsonModel>(receiveString);
         }

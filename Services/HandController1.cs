@@ -56,14 +56,40 @@ namespace MRTest.Services
         {
             _serialPortService.ClosePort();
         }
+        public void OpenPort(string port)
+        {
+            _serialPortService.OpenPort(port);
+        }
+        public void SendPort(string data)
+        {
+            _serialPortService.SendData(data);
+        }
+        public void DefaultMirro(string port)
+        {
+            try
+            {
+                string defaultData = "0,0,0,0,0\n";
+                Notifications.GetNotifications().InvokeCommonStatus("Проверка подключения к устройству", Notifications.NotificationEvents.ConnectionPort);
+                _serialPortService.OpenPort(port);
+                _serialPortService.SendData(defaultData);
+                _serialPortService.ClosePort();
+                Notifications.GetNotifications().InvokeCommonStatus("Настройки Mirro сброшены", Notifications.NotificationEvents.Success);
+
+            }
+            catch
+            {
+                Notifications.GetNotifications().InvokeCommonStatus("Не удалось подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
+               
+            }
+        }
         
-        public bool CalibrateDevice(string com)
+        public bool CalibrateDevice(string port)
         {
             try
             {
                 _udpClientService.StartPing();
                 Notifications.GetNotifications().InvokeCommonStatus("Подключение к устройству", Notifications.NotificationEvents.ConnectionPort);
-                _serialPortService.OpenPort(com);
+                _serialPortService.OpenPort(port);
                 Notifications.GetNotifications().InvokeCommonStatus("Разожмите руку и удерживайте",Notifications.NotificationEvents.CalibrateMin);
                 Thread.Sleep(3000);
                 _calibrationService.CalibrateMin(_serialPortService, _udpClientService);

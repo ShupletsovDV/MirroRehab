@@ -63,26 +63,35 @@ namespace MRTest.Services
 
         private (double, double, double, double, double) CalculateAverages(List<List<double>> calibrationData)
         {
-            if (calibrationData.Count == 0)
+            try
             {
-                return (0, 0, 0, 0, 0);
-            }
 
-            int numSamples = calibrationData[0].Count;
-            int numMeasurements = calibrationData.Count;
-            List<double> averages = new List<double>();
 
-            for (int i = 0; i < numSamples; i++)
-            {
-                double sum = 0;
-                for (int j = 0; j < numMeasurements; j++)
+                if (calibrationData.Count == 0)
                 {
-                    sum += calibrationData[j][i];
+                    return (0, 0, 0, 0, 0);
                 }
-                averages.Add(sum / numMeasurements);
-            }
 
-            return (Math.Round(averages[0], 1), Math.Round(averages[1], 1), Math.Round(averages[2], 1), Math.Round(averages[3], 1), Math.Round(averages[4], 1));
+                int numSamples = calibrationData[0].Count;
+                int numMeasurements = calibrationData.Count;
+                List<double> averages = new List<double>();
+
+                for (int i = 0; i < numSamples; i++)
+                {
+                    double sum = 0;
+                    for (int j = 0; j < numMeasurements; j++)
+                    {
+                        sum += calibrationData[j][i];
+                    }
+                    averages.Add(sum / numMeasurements);
+                }
+
+                return (Math.Round(averages[0], 1), Math.Round(averages[1], 1), Math.Round(averages[2], 1), Math.Round(averages[3], 1), Math.Round(averages[4], 1));
+            }
+            catch(Exception ex)
+            {
+                throw new ArgumentException(ex.Message);
+            }
         }
         public List<List<double>> CollectCalibrationData(List<List<double>> calibrationData, ISerialPortService _serialPortService, IUdpClientService _udpClientService)
         {
@@ -109,7 +118,7 @@ namespace MRTest.Services
                             (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
 
                             calibrationData.Add(new List<double> { angThumb, angIndex, angMiddle, angRing, angPinky });
-                            string data = $"{Dictionaries.MyDictThumb[angThumb]},{Dictionaries.MyDict[angIndex]},{Dictionaries.MyDict[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]}\n";
+                            string data = $"{Dictionaries.MyDict[angIndex]},{Dictionaries.MyDict[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]},{Dictionaries.MyDictThumb[angThumb]}\n";
                             _serialPortService.SendData(data);
                         }
                     }

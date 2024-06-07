@@ -129,11 +129,10 @@
                 </WrapPanel>
                 <WrapPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0">
                     
-                        <Button Width="40"  Margin="0 0 0 0"  Style="{StaticResource MenuButton}" Command="{Binding HelpBtnCommand}" Cursor="Hand"  HorizontalAlignment="Right" VerticalAlignment="center"   ToolTip="Помощь">
+                        <Button Width="40"  Margin="0 0 0 0"  Style="{StaticResource MenuButton}" Command="{Binding HelpBtnCommand}" Cursor="Hand"  HorizontalAlignment="Right" VerticalAlignment="center"   ToolTip="Увести в ноль">
                             <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0 0 0 0" >
-                                <materialDesign:PackIcon Kind="Help" VerticalAlignment="Center" Margin="0 0 0 0" />
-                             
-                            </StackPanel>
+                            <materialDesign:PackIcon Kind="Restart" VerticalAlignment="Center" Margin="0 0 0 0" />
+                        </StackPanel>
                         </Button>
                     
                 </WrapPanel>

@@ -41,7 +41,7 @@ namespace MRTest.ViewModels
             set => Set(ref _pathImage,value);
         }
 
-        #region Анимация калибровки разжатия
+       
 
         private string _imageVisible = "Visible"; //Visible
 
@@ -50,19 +50,7 @@ namespace MRTest.ViewModels
             get => _imageVisible;
             set => Set(ref _imageVisible, value);
         }
-        #endregion
-
-        #region нет подключения
-
-        private string _notConnectSenso = "Hidden"; //Visible
-
-        public string NotConnectSenso
-        {
-            get => _notConnectSenso;
-            set => Set(ref _notConnectSenso, value);
-        }
-        #endregion
-
+       
         #region подключение к порту
 
         private string _connectinPort = "Hidden"; //Visible
@@ -74,48 +62,6 @@ namespace MRTest.ViewModels
         }
         #endregion
 
-
-        #region ошибка поиска
-
-        private string _mistakeSearch = "Hidden"; //Visible
-
-        public string MistakeSearch
-        {
-            get => _mistakeSearch;
-            set => Set(ref _mistakeSearch, value);
-        }
-        #endregion
-
-        #region успешный поиск
-
-        private string _chekMark = "Hidden"; //Visible
-
-        public string ChekMark
-        {
-            get => _chekMark;
-            set => Set(ref _chekMark, value);
-        }
-        #endregion
-
-        #region Анимация калибровки сжатия
-
-        private string _calibrateMin = "Hidden";
-
-        public string CalibrateMin
-        {
-            get => _calibrateMin;
-            set => Set(ref _calibrateMin, value);
-        }
-        #endregion
-
-        #region Видимость консоли ошибок
-        private string _visibleError = "Hidden";
-        public string VisibleError
-        {
-            get => _visibleError;
-            set => Set(ref _visibleError, value);
-        }
-        #endregion
 
         #region Текс сообщения
         private string _messageInfo = "";
@@ -260,7 +206,9 @@ namespace MRTest.ViewModels
                  MessageInfo.Remove(0);*/
                 #endregion
 
-                var chekPort = await Task.Run(()=>handController.CheckPort(comPort));
+                new SettingsWindow(comPort).Show();
+
+                /*var chekPort = await Task.Run(()=>handController.CheckPort(comPort));
                 if(chekPort)
                 {
                     var succesCalibration =  await Task.Run(() => handController.CalibrateDevice(comPort));
@@ -278,7 +226,7 @@ namespace MRTest.ViewModels
                 {
                     ErrorSound();
                     Notifications_OnCommonPushpin("Не удается подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
-                }
+                }*/
 
                 
             }
@@ -342,7 +290,7 @@ namespace MRTest.ViewModels
         public ICommand HelpBtnCommand { get; set; }
         private void OnHelpBtnCommandExecuted(object p)
         {
-            new InfoWindow().Show();
+            handController.DefaultMirro(comPort);
         }
         private bool CanHelpBtnCommandExecute(object p) => true;
         #endregion
@@ -554,7 +502,6 @@ namespace MRTest.ViewModels
                             ColorSearch = new SolidColorBrush(Color.FromRgb(2, 190, 104)); // Цвет #02be68
                             SelectedComPort = x;
                             MessageInfo = "Устройство найдено!";
-                            ChekMark = "Visible";
                             PathImage = "/Resources/checkMark.png";
                             i++;
 

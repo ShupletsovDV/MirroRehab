@@ -8,25 +8,23 @@ using System.Threading.Tasks;
 using System.Windows;
 
 namespace MRTest.Services
-{
+{   //указательный, инверсия
     public class PositionProcessor : IPositionProcessor
     {
         public void ProcessPosition(dynamic receiveData, ISerialPortService serialPortService)
         {
             try
             {
-
-
-                double angThumb = Math.Round(receiveData.data.fingers[0].ang[0], 2);
+                double angThumb = Math.Round(receiveData.data.fingers[0].ang[0], 2); //-0.9    0.9  на новой прошивке
                 double angIndex = Math.Round(receiveData.data.fingers[1].ang[0], 1);
                 double angMiddle = Math.Round(receiveData.data.fingers[2].ang[0], 1);
                 double angRing = Math.Round(receiveData.data.fingers[3].ang[0], 1);
                 double angPinky = Math.Round(receiveData.data.fingers[4].ang[0], 1);
-
+               
                 (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
-
-                string data = $"{Dictionaries.MyDictThumb[angThumb]},{Dictionaries.MyDict[angIndex]},{Dictionaries.MyDict[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]}\n";
-                string test = $"{angThumb}   {angIndex}  {angMiddle}  {angRing}  {angPinky}";
+                
+                string data = $"{Dictionaries.MyDictReverse[angIndex]},{Dictionaries.MyDictReverse[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]},{Dictionaries.MyDictThumb[angThumb]}";
+                string test = $"{angThumb}   {angIndex}  {angMiddle}  {angRing}  {angPinky}\n"+data;
                 serialPortService.SendData(data);
                 Notifications.GetNotifications().InvokeCommonStatus(test, Notifications.NotificationEvents.CalibrateMin);
             }
