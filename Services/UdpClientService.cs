@@ -29,7 +29,7 @@ namespace MRTest.Services
           _client.Send(new byte[0], 0, _remoteEP);
              
         }
-
+        public static string _positions = "";
         public JsonModel ReceiveData()
         {
             string messageString = "ping";
@@ -39,12 +39,13 @@ namespace MRTest.Services
             
             byte[] receiveBytes = _client.Receive(ref remoteEP);
             string receiveString = Encoding.ASCII.GetString(receiveBytes).TrimEnd('\0');
+            _positions += receiveString + "\n";
             return Newtonsoft.Json.JsonConvert.DeserializeObject<JsonModel>(receiveString);
         }
 
         public void HandleError( CancellationToken cancellationToken)
         {
-            // Error handling logic
+            // TODO Error handling logic
         }
     }
 

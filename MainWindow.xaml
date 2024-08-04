@@ -89,14 +89,13 @@
                                 <TextBlock Text="Остановить" FontSize="16"/>
                             </StackPanel>
                         </Button>
-                        <TextBlock Grid.Row="1" Text="{Binding MessageInfo}"  HorizontalAlignment="Center" Margin="0 15 0 0" FontSize="12" FontWeight="Bold"  />
 
 
 
 
 
                     </StackPanel>
-
+                    <TextBlock Grid.Row="1" Text="{Binding MessageInfo}" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" />
                 </StackPanel>
             </Border>
 
@@ -140,7 +139,7 @@
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 30">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="20"/>
+                            <RowDefinition Height="40"/>
                         </Grid.RowDefinitions>
 
                         <Image Grid.Row="0" Source="{Binding PathImage}"  Stretch="Fill" Height="100" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding ImageVisible}">
@@ -157,7 +156,7 @@
                         
                         <local:DonutSpinner  Grid.Row="0" Height="80" Width="80" Margin="10, 0" Duration="0:0:2" SpinnerColor="#FE6100" Visibility="{Binding ConnectinPort}"/>
 
-                        <TextBlock Grid.Row="1" Text="{Binding MessageInfo}"  HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold"  />
+                        <TextBlock Grid.Row="1" Text="{Binding MessageInfo}" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" />
 
                     </Grid>
                    

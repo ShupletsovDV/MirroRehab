@@ -10,16 +10,19 @@ namespace MRTest.Services
     {
         public static readonly Dictionary<double, int> MyDict = new Dictionary<double, int>
         {
-            /*{0.0, 0}, {0.1, 5}, {0.2, 10}, {0.3, 15}, {0.4, 20}, {0.5, 25}, {0.6, 30},
-            {0.7, 35}, {0.8, 40}, {0.9, 45}, {1.0, 50}, {1.1, 55}, {1.2, 60}, {1.3, 65},
-            {1.4, 70}, {1.5, 75}, {1.6, 80}, {1.7, 85}, {1.8, 90}, {1.9, 95}, {2.0, 100},
-            {2.1, 105}, {2.2, 110}, {2.3, 115}, {2.4, 120}, {2.5, 125}, {2.6, 130}, {2.7, 135},
-            {2.8, 140}, {2.9, 145}, {3.0, 150}, {3.1, 160}*/
+
             {0.0, 0}, {0.1, 6}, {0.2, 12}, {0.3, 18}, {0.4, 24}, {0.5, 30}, {0.6, 36},
             {0.7, 42}, {0.8, 48}, {0.9, 54}, {1.0, 60}, {1.1, 66}, {1.2, 72}, {1.3, 78},
             {1.4, 84}, {1.5, 90}, {1.6, 96}, {1.7, 102}, {1.8, 108}, {1.9, 114}, {2.0, 120},
             {2.1, 126}, {2.2, 132}, {2.3, 138}, {2.4, 144}, {2.5, 150}, {2.6, 156}, {2.7, 162},
             {2.8, 168}, {2.9, 174}, {3.0, 180}, {3.1, 180}
+
+
+            /*{0.0, 12}, {0.1, 18}, {0.2, 24}, {0.3, 30}, {0.4, 36}, {0.5, 42}, {0.6, 42},
+            {0.7, 48}, {0.8, 54}, {0.9, 60}, {1.0, 66}, {1.1, 72}, {1.2, 78}, {1.3, 84},
+            {1.4, 90}, {1.5, 96}, {1.6, 102}, {1.7, 102}, {1.8, 108}, {1.9, 114}, {2.0, 120},
+            {2.1, 126}, {2.2, 132}, {2.3, 138}, {2.4, 144}, {2.5, 150}, {2.6, 156}, {2.7, 162},
+            {2.8, 168}, {2.9, 174}, {3.0, 180}, {3.1, 180}*/
 
         };
         public static readonly Dictionary<double, int> MyDictReverse = new Dictionary<double, int>
@@ -60,6 +63,80 @@ namespace MRTest.Services
             {1.12, 140}, {1.13, 140}, {1.14, 140}, {1.15, 140}, {1.16, 145}, {1.17, 145}, {1.18, 145},
             {1.19, 145}, {1.20, 150},{1.21, 155},{1.22, 160},{1.23, 165},{1.24, 165},{1.25, 170},
         };
+        public static readonly Dictionary<int, List<double>> MyDictThumbCalibrate = new Dictionary<int, List<double>>
+        {
+            {0, new List<double> {0.00, 0.01, 0.02, 0.03}},
+            {5, new List<double> {0.04, 0.05, 0.06, 0.07}},
+            {10, new List<double> {0.08, 0.09, 0.10, 0.11}},
+            {15, new List<double> {0.12, 0.13, 0.14, 0.15}},
+            {20, new List<double> {0.16, 0.17, 0.18, 0.19}},
+            {25, new List<double> {0.20, 0.21, 0.22, 0.23}},
+            {30, new List<double> {0.24, 0.25, 0.26, 0.27}},
+            {35, new List<double> {0.28, 0.29, 0.30, 0.31}},
+            {40, new List<double> {0.32, 0.33, 0.34, 0.35}},
+            {45, new List<double> {0.36, 0.37, 0.38, 0.39}},
+            {50, new List<double> {0.40, 0.41, 0.42, 0.43}},
+            {55, new List<double> {0.44, 0.45, 0.46, 0.47}},
+            {60, new List<double> {0.48, 0.49, 0.50, 0.51}},
+            {65, new List<double> {0.52, 0.53, 0.54, 0.55}},
+            {70, new List<double> {0.56, 0.57, 0.58, 0.59}},
+            {75, new List<double> {0.60, 0.61, 0.62, 0.63}},
+            {80, new List<double> {0.64, 0.65, 0.66, 0.67}},
+            {85, new List<double> {0.68, 0.69, 0.70, 0.71}},
+            {90, new List<double> {0.72, 0.73, 0.74, 0.75}},
+            {95, new List<double> {0.76, 0.77, 0.78, 0.79}},
+            {100, new List<double> {0.80, 0.81, 0.82, 0.83}},
+            {105, new List<double> {0.84, 0.85, 0.86, 0.87}},
+            {110, new List<double> {0.88, 0.89, 0.90, 0.91}},
+            {115, new List<double> {0.92, 0.93, 0.94, 0.95}},
+            {120, new List<double> {0.96, 0.97, 0.98, 0.99}},
+            {125, new List<double> {1.00, 1.01, 1.02, 1.03}},
+            {130, new List<double> {1.04, 1.05, 1.06, 1.07}},
+            {135, new List<double> {1.08, 1.09, 1.10, 1.11}},
+            {140, new List<double> {1.12, 1.13, 1.14, 1.15}},
+            {145, new List<double> {1.16, 1.17, 1.18, 1.19}},
+            {150, new List<double> {1.20}},
+            {155, new List<double> {1.21}},
+            {160, new List<double> {1.22}},
+            {165, new List<double> {1.23, 1.24}},
+            {170, new List<double> {1.25}}
+        };
+        public static readonly Dictionary<int, List<double>> MyDictCalibrate = new Dictionary<int, List<double>>
+        {
+            {0, new List<double> {0.0}},
+            {6, new List<double> {0.1}},
+            {12, new List<double> {0.2}},
+            {18, new List<double> {0.3}},
+            {24, new List<double> {0.4}},
+            {30, new List<double> {0.5}},
+            {36, new List<double> {0.6}},
+            {42, new List<double> {0.7}},
+            {48, new List<double> {0.8}},
+            {54, new List<double> {0.9}},
+            {60, new List<double> {1.0}},
+            {66, new List<double> {1.1}},
+            {72, new List<double> {1.2}},
+            {78, new List<double> {1.3}},
+            {84, new List<double> {1.4}},
+            {90, new List<double> {1.5}},
+            {96, new List<double> {1.6}},
+            {102, new List<double> {1.7}},
+            {108, new List<double> {1.8}},
+            {114, new List<double> {1.9}},
+            {120, new List<double> {2.0}},
+            {126, new List<double> {2.1}},
+            {132, new List<double> {2.2}},
+            {138, new List<double> {2.3}},
+            {144, new List<double> {2.4}},
+            {150, new List<double> {2.5}},
+            {156, new List<double> {2.6}},
+            {162, new List<double> {2.7}},
+            {168, new List<double> {2.8}},
+            {174, new List<double> {2.9}},
+            {180, new List<double> {3.0, 3.1}}
+        };
+
+
 
 
 

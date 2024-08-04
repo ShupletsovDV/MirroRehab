@@ -7,6 +7,7 @@ using MRTest.Services;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Management;
 using System.Media;
 using System.Text;
@@ -158,11 +159,11 @@ namespace MRTest.ViewModels
             try
             {
                 
-                
-
                 Search();
+                Notifications_OnCommonPushpin("Устройство найдено", Notifications.NotificationEvents.Success);
                 if (_comPorts.Count == 0)
                 {
+                    Notifications_OnCommonPushpin("Устройство не найдено", Notifications.NotificationEvents.NotConnectionPort);
                     MessageBox.Show("Устройство не найдено");
                  
                 }
@@ -185,6 +186,10 @@ namespace MRTest.ViewModels
         {
             try
             {
+                if (string.IsNullOrEmpty(SelectedComPort))
+                {
+                    return;
+                }
                 comPort = string.IsNullOrEmpty(comPort) ? SelectedComPort.Split(" ")[0] : comPort;
 
                 #region last
@@ -206,13 +211,13 @@ namespace MRTest.ViewModels
                  MessageInfo.Remove(0);*/
                 #endregion
 
-                new SettingsWindow(comPort).Show();
+                //new SettingsWindow(comPort).Show();
 
-                /*var chekPort = await Task.Run(()=>handController.CheckPort(comPort));
-                if(chekPort)
+                var chekPort = await Task.Run(() => handController.CheckPort(comPort));
+                if (chekPort)
                 {
-                    var succesCalibration =  await Task.Run(() => handController.CalibrateDevice(comPort));
-                    if(succesCalibration)
+                    var succesCalibration = await Task.Run(() => handController.CalibrateDevice(comPort));
+                    if (succesCalibration)
                     {
                         Notifications_OnCommonPushpin("Устройство откалибровано", Notifications.NotificationEvents.Success);
                     }
@@ -226,13 +231,13 @@ namespace MRTest.ViewModels
                 {
                     ErrorSound();
                     Notifications_OnCommonPushpin("Не удается подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
-                }*/
+                }
 
-                
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.InnerException.Message);
+                //MessageBox.Show(ex.InnerException.Message);
                 if (ex.Message.Contains("Object reference not set to an instance of an object"))
                 {
                     ////MessageBox.Show("Выберите устройство!");
@@ -290,7 +295,24 @@ namespace MRTest.ViewModels
         public ICommand HelpBtnCommand { get; set; }
         private void OnHelpBtnCommandExecuted(object p)
         {
-            handController.DefaultMirro(comPort);
+            //handController.DefaultMirro(comPort);
+
+            //MessageBox.Show("" + CalibrateRezult.maxThumb);
+            string filePath = "testData.txt";
+            string fileContent = File.ReadAllText(filePath);
+            string[] numberStrings = fileContent.Split(';');
+            double[] numbers = new double[numberStrings.Length];
+            for (int i = 0; i < numberStrings.Length; i++)
+            {
+                numbers[i] = double.Parse(numberStrings[i]);
+            }
+
+            CalibrateRezult.maxThumb =numbers[0];
+            CalibrateRezult.maxIndex = numbers[0];
+            CalibrateRezult.maxMiddle = numbers[0];
+            CalibrateRezult.maxRing = numbers[0];
+            CalibrateRezult.maxPinky = numbers[0];
+            MessageBox.Show(""+CalibrateRezult.maxThumb);
         }
         private bool CanHelpBtnCommandExecute(object p) => true;
         #endregion
@@ -302,6 +324,7 @@ namespace MRTest.ViewModels
 
             ColorStart = "Hidden";
             _cancellationTokenSource?.Cancel();
+            //File.WriteAllTextAsync("testData.txt",UdpClientService._positions);
 
 
         }
@@ -370,7 +393,6 @@ namespace MRTest.ViewModels
                 ConnectinPort = "Visible";
                 ImageVisible = "Hidden";
 
-
             }
             if (notificationEvents==Notifications.NotificationEvents.NotConnectionPort)
             {
@@ -395,6 +417,11 @@ namespace MRTest.ViewModels
                 ImageVisible = "Visible";
                 ConnectinPort = "Hidden";
                 PathImage = "/Resources/checkMark.png";
+            }
+            if(notificationEvents==Notifications.NotificationEvents.PositionProcessor)
+            {
+                ConnectinPort = "Hidden";
+                ImageVisible = "Hidden";
             }
         }
 

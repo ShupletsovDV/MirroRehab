@@ -68,10 +68,13 @@ namespace MRTest.Services
         {
             try
             {
-                string defaultData = "0,0,0,0,0\n";
+                string defaultData = "0,180,180,0,0\n";
                 Notifications.GetNotifications().InvokeCommonStatus("Проверка подключения к устройству", Notifications.NotificationEvents.ConnectionPort);
                 _serialPortService.OpenPort(port);
-                _serialPortService.SendData(defaultData);
+                for(int i= 0; i < 10;i++)
+                {
+                    _serialPortService.SendData(defaultData);
+                }
                 _serialPortService.ClosePort();
                 Notifications.GetNotifications().InvokeCommonStatus("Настройки Mirro сброшены", Notifications.NotificationEvents.Success);
 
