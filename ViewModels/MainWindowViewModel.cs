@@ -17,6 +17,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using WpfElmaBot_2._0_.ViewModels.Base;
+using static MRTest.Services.Notifications;
 
 
 namespace MRTest.ViewModels
@@ -163,15 +164,12 @@ namespace MRTest.ViewModels
                 Notifications_OnCommonPushpin("Устройство найдено", Notifications.NotificationEvents.Success);
                 if (_comPorts.Count == 0)
                 {
-                    Notifications_OnCommonPushpin("Устройство не найдено", Notifications.NotificationEvents.NotConnectionPort);
-                    MessageBox.Show("Устройство не найдено");
-                 
+                    Notifications_OnCommonPushpin("Устройство не найдено", Notifications.NotificationEvents.NotConnectionPort); 
                 }
 
             }
             catch (Exception ex)
             {
-                // Обработка ошибки чтения реестра
                 MessageBox.Show("Ошибка при чтении реестра: " + ex.Message);
             }
 
@@ -191,27 +189,6 @@ namespace MRTest.ViewModels
                     return;
                 }
                 comPort = string.IsNullOrEmpty(comPort) ? SelectedComPort.Split(" ")[0] : comPort;
-
-                #region last
-                /* MessageInfo = "Разожмите руку и удерживайте в течении 5 секунд";
-                 var calMin = await Task.Run(() => new HandController(comPort).CalibrateDeviceMin(cancellationTokenSource, comPort));
-                 Application.Current.Dispatcher.Invoke(() => CalibrateMin = "Hidden");
-                 MessageInfo = HandController.message;
-                 if (calMin)
-                 {
-                     CalibrateMax = "Visible";
-                     await Task.Run(() => new HandController(comPort).CalibrateDeviceMax(cancellationTokenSource, comPort));
-                     Application.Current.Dispatcher.Invoke(() => CalibrateMax = "Hidden");
-                 }
-                 if(MessageInfo.Contains("подключ"))
-                 {
-                     ErrorSound();
-                     NotConnect = "Visible";
-                 }    
-                 MessageInfo.Remove(0);*/
-                #endregion
-
-                //new SettingsWindow(comPort).Show();
 
                 var chekPort = await Task.Run(() => handController.CheckPort(comPort));
                 if (chekPort)
@@ -237,7 +214,7 @@ namespace MRTest.ViewModels
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.InnerException.Message);
+               
                 if (ex.Message.Contains("Object reference not set to an instance of an object"))
                 {
                     ////MessageBox.Show("Выберите устройство!");
@@ -268,25 +245,15 @@ namespace MRTest.ViewModels
         public ICommand StartBtnCommand { get; set; }
         private async void OnStartBtnCommandExecuted(object p)
         {
-            ColorStart = "Visible";
-            ImageVisible = "Hidden";
-            ConnectinPort = "Visible";
-            MessageInfo = "Запуск...";
+
+            Notifications_OnCommonPushpin("Запуск...", Notifications.NotificationEvents.ConnectionPort);
             _cancellationTokenSource = new CancellationTokenSource();
-            CancellationToken token = _cancellationTokenSource.Token;
-            var start= await Task.Run(()=>handController.StartTracking(token,comPort));
-            if(start)
+          
+            var start= await Task.Run(()=>handController.StartTracking(_cancellationTokenSource.Token, comPort));
+            if(!start)
             {
-                ColorStart = "Hidden";
-            }
-            else
-            {
-                ColorStart =  "Hidden";
                 ErrorSound();
             }
-            
-
-
         }
         private bool CanStartBtnCommandExecute(object p) => true;
         #endregion
@@ -295,24 +262,9 @@ namespace MRTest.ViewModels
         public ICommand HelpBtnCommand { get; set; }
         private void OnHelpBtnCommandExecuted(object p)
         {
-            //handController.DefaultMirro(comPort);
+          
+           handController.DefaultMirro( comPort);
 
-            //MessageBox.Show("" + CalibrateRezult.maxThumb);
-            string filePath = "testData.txt";
-            string fileContent = File.ReadAllText(filePath);
-            string[] numberStrings = fileContent.Split(';');
-            double[] numbers = new double[numberStrings.Length];
-            for (int i = 0; i < numberStrings.Length; i++)
-            {
-                numbers[i] = double.Parse(numberStrings[i]);
-            }
-
-            CalibrateRezult.maxThumb =numbers[0];
-            CalibrateRezult.maxIndex = numbers[0];
-            CalibrateRezult.maxMiddle = numbers[0];
-            CalibrateRezult.maxRing = numbers[0];
-            CalibrateRezult.maxPinky = numbers[0];
-            MessageBox.Show(""+CalibrateRezult.maxThumb);
         }
         private bool CanHelpBtnCommandExecute(object p) => true;
         #endregion
@@ -347,35 +299,28 @@ namespace MRTest.ViewModels
 
         #endregion
 
+
+        #region Команда кнопки демо
+        public ICommand DemoBtnCommand { get; set; }
+        private void OnDemoBtnCommandExecuted(object p)
+        {
+            _cancellationTokenSource = new CancellationTokenSource();
+          Task.Run(()=> handController.DemoMirro(_cancellationTokenSource.Token, comPort));
+
+        }
+        private bool CanDemoBtnCommandExecute(object p) => true;
+        #endregion
+
         #endregion
 
         public MainWindowViewModel()
         {
             try
             {
-
-               
-                WindowState = WindowState.Normal;
-                ColorSearch = new SolidColorBrush(Colors.Red);
-
-                #region Инициализация команд
-                SearchDevice = new LambdaCommand(OnSearcBtnCommandExecuted, CanSearchBtnCommandExecute);
-                CalibrateBtnCommand = new LambdaCommand(OnCalibrateBtnCommandExecuted, CanCalibrateBtnCommandExecute);
-                CloseAppCommand = new LambdaCommand(OnCloseAppCommandExecuted, CanCloseAppCommandExecute);
-                RollUpCommand = new LambdaCommand(OnRollUpCommandExecuted, CanRollUpCommandExecute);
-                StartBtnCommand = new LambdaCommand(OnStartBtnCommandExecuted, CanStartBtnCommandExecute);
-                StopBtnCommand = new LambdaCommand(OnStopBtnCommandExecuted, CanStopBtnCommandExecute);
-                HelpBtnCommand = new LambdaCommand(OnHelpBtnCommandExecuted, CanHelpBtnCommandExecute);
-                #endregion
-
-                handController = HandController1.GetHandController();
-
-                notifications = Notifications.GetNotifications();
-                notifications.OnCommonPushpin += Notifications_OnCommonPushpin;
-
+                InitializeProperties();
+                InitializeCommands();
+                SubscribeToNotifications();
                 Search();
-
-
             }
             catch (Exception ex)
             {
@@ -383,45 +328,62 @@ namespace MRTest.ViewModels
                 ErrorSound();
             }
         }
-
+        private void SubscribeToNotifications()
+        {
+            handController = HandController1.GetHandController();
+            notifications = Notifications.GetNotifications();
+            notifications.OnCommonPushpin += Notifications_OnCommonPushpin;
+        }
+        private void InitializeProperties()
+        {
+            WindowState = WindowState.Normal;
+            ColorSearch = new SolidColorBrush(Colors.Red);
+        }
+        private void InitializeCommands()
+        {
+            SearchDevice = new LambdaCommand(OnSearcBtnCommandExecuted, CanSearchBtnCommandExecute);
+            CalibrateBtnCommand = new LambdaCommand(OnCalibrateBtnCommandExecuted, CanCalibrateBtnCommandExecute);
+            CloseAppCommand = new LambdaCommand(OnCloseAppCommandExecuted, CanCloseAppCommandExecute);
+            RollUpCommand = new LambdaCommand(OnRollUpCommandExecuted, CanRollUpCommandExecute);
+            StartBtnCommand = new LambdaCommand(OnStartBtnCommandExecuted, CanStartBtnCommandExecute);
+            StopBtnCommand = new LambdaCommand(OnStopBtnCommandExecuted, CanStopBtnCommandExecute);
+            HelpBtnCommand = new LambdaCommand(OnHelpBtnCommandExecuted, CanHelpBtnCommandExecute);
+            DemoBtnCommand = new LambdaCommand(OnDemoBtnCommandExecuted, CanDemoBtnCommandExecute);
+        }
         private void Notifications_OnCommonPushpin(string message, Notifications.NotificationEvents notificationEvents)
         {
            
             MessageInfo = message;
-            if (notificationEvents == Notifications.NotificationEvents.ConnectionPort)
+            switch (notificationEvents)
             {
-                ConnectinPort = "Visible";
-                ImageVisible = "Hidden";
-
-            }
-            if (notificationEvents==Notifications.NotificationEvents.NotConnectionPort)
-            {
-                ImageVisible = "Visible";
-                ConnectinPort = "Hidden";
-                 PathImage = "/Resources/NotConnect.png";
-            }
-            if (notificationEvents == Notifications.NotificationEvents.CalibrateMax)
-            {
-                ImageVisible = "Visible";
-                ConnectinPort = "Hidden";
-                PathImage = "/Resources/hand1.png";
-            }
-            if (notificationEvents == Notifications.NotificationEvents.CalibrateMin)
-            {
-                ImageVisible = "Visible";
-                ConnectinPort = "Hidden";
-                PathImage = "/Resources/hand2.png";
-            }
-            if(notificationEvents==Notifications.NotificationEvents.Success)
-            {
-                ImageVisible = "Visible";
-                ConnectinPort = "Hidden";
-                PathImage = "/Resources/checkMark.png";
-            }
-            if(notificationEvents==Notifications.NotificationEvents.PositionProcessor)
-            {
-                ConnectinPort = "Hidden";
-                ImageVisible = "Hidden";
+                case NotificationEvents.ConnectionPort:
+                    ConnectinPort = "Visible";
+                    ImageVisible = "Hidden";
+                    break;
+                case NotificationEvents.NotConnectionPort:
+                    ImageVisible = "Visible";
+                    ConnectinPort = "Hidden";
+                    PathImage = "/Resources/NotConnect.png";
+                    break;
+                case NotificationEvents.CalibrateMax:
+                    ImageVisible = "Visible";
+                    ConnectinPort = "Hidden";
+                    PathImage = "/Resources/hand1.png";
+                    break;
+                case NotificationEvents.CalibrateMin:
+                    ImageVisible = "Visible";
+                    ConnectinPort = "Hidden";
+                    PathImage = "/Resources/hand2.png";
+                    break;
+                case NotificationEvents.Success:
+                    ImageVisible = "Visible";
+                    ConnectinPort = "Hidden";
+                    PathImage = "/Resources/checkMark.png";
+                    break;
+                case NotificationEvents.PositionProcessor:
+                    ConnectinPort = "Hidden";
+                    ImageVisible = "Hidden";
+                    break;
             }
         }
 

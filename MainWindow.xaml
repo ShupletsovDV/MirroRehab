@@ -8,163 +8,158 @@
         xmlns:local="clr-namespace:MRTest"
         mc:Ignorable="d"
         xmlns:vm ="clr-namespace:MRTest.ViewModels"
-        Height="350" Width="600" AllowsTransparency="true" WindowStyle="None" Opacity="0.9" WindowStartupLocation="CenterScreen" Background="Transparent" WindowState="{Binding WindowState}" ResizeMode="CanResize">
+        Height="450" Width="600" AllowsTransparency="true" WindowStyle="None" Opacity="0.9" WindowStartupLocation="CenterScreen" Background="Transparent" WindowState="{Binding WindowState}" ResizeMode="CanResize">
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
-    <Border x:Name="MainWind"  CornerRadius="20" Background="White" MouseDown="MainWind_MouseDown" >
+    <Grid  Background="Transparent">
+        <Border x:Name="ww"  Grid.Row="0"  CornerRadius="20" Background="White">
+            <local:DonutSpinner  Height="80" Width="80" Margin="0" Duration="0:0:2" SpinnerColor="#FE6100" Visibility="Visible"/>
+        </Border>
+        
+
+        <Border x:Name="MainWind"  CornerRadius="20" Background="White" MouseDown="MainWind_MouseDown" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="20"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.RowSpan="2" CornerRadius="25 0 0 25">
+                    <StackPanel Margin="5 10 0 0">
+                        <StackPanel>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="75"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Image      Grid.Column="0" Source="/Resources/logo1.png" Height="60" Width="80"  Stretch="UniformToFill" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                <TextBlock Text="Mirro" Grid.Column="1" HorizontalAlignment="Left"   VerticalAlignment="Center" FontSize="28" FontWeight="Bold" Foreground="#FE6100"/>
+                                <TextBlock Text="Rehab" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="Bold" />
+
+                            </Grid>
+
+                        </StackPanel>
+                        <StackPanel>
+                            <Button  Width="190" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Command="{Binding SearchDevice}" Cursor="Hand"  >
+                                <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="0 0 0 0">
+                                    <materialDesign:PackIcon Kind="Search" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
+                                    <TextBlock Text="Поиск Mirro" FontSize="16"/>
+                                    <materialDesign:PackIcon Kind="Success" VerticalAlignment="Center" Visibility="Visible" HorizontalAlignment="Right" Foreground="{Binding ColorSearch}"/>
+                                </StackPanel>
+
+                            </Button>
+
+                            <ComboBox Width="160" Margin="0 10 0 0" Style="{StaticResource MaterialDesignOutlinedComboBox}"  Cursor="Hand" ItemsSource="{Binding ComPorts}" SelectedItem="{Binding SelectedComPort}">
+
+                            </ComboBox>
+
+                            <Button  Width="180" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Cursor="Hand"   Command="{Binding CalibrateBtnCommand}"  >
+                                <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center" Margin="0 0 0 0">
+                                    <materialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
+                                    <TextBlock Text="Калибровка" FontSize="16"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button IsEnabled="True" Width="180" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Cursor="Hand"  Command="{Binding StartBtnCommand}"  >
+                                <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center" Margin="0 0 0 0" >
+                                    <materialDesign:PackIcon Kind="PlayBox" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
+                                    <TextBlock Text="Запустить" FontSize="16"/>
+
+                                </StackPanel>
+
+                            </Button>
+                            <Button  Width="180" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Cursor="Hand"   Command="{Binding StopBtnCommand}"  >
+                                <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center" Margin="0 0 0 0">
+                                    <materialDesign:PackIcon Kind="Stop" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
+                                    <TextBlock Text="Остановить" FontSize="16"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button  Width="180" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Cursor="Hand"   Command="{Binding  DemoBtnCommand}" >
+                                <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center" Margin="0 0 0 0">
+                                    <materialDesign:PackIcon Kind="Update" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
+                                    <TextBlock Text="Демо" FontSize="16"/>
+                                </StackPanel>
+                            </Button>
 
 
-        <Grid >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="20"/>
-            </Grid.RowDefinitions>
 
-            <Border Grid.RowSpan="2" CornerRadius="25 0 0 25">
-                <StackPanel Margin="5 10 0 0">
-                    <StackPanel>
-                        <Grid HorizontalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="75"/>
+
+
+                        </StackPanel>
+                        <TextBlock Grid.Row="1" Text="{Binding MessageInfo}" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" />
+                    </StackPanel>
+                </Border>
+
+
+                <Grid Margin="0 20 0 0" Grid.Column="1" Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <WrapPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
+                        <Grid>
+                            <Grid.ColumnDefinitions >
+                                <ColumnDefinition Width="40"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Image      Grid.Column="0" Source="/Resources/logo1.png" Height="60" Width="80"  Stretch="UniformToFill" HorizontalAlignment="Left" VerticalAlignment="Center" />
-                            <TextBlock Text="Mirro" Grid.Column="1" HorizontalAlignment="Left"   VerticalAlignment="Center" FontSize="28" FontWeight="Bold" Foreground="#FE6100"/>
-                            <TextBlock Text="Rehab" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="Bold" />
 
+                            <Button Width="40"  Margin="0 0 0 0" Grid.Column="1" Style="{StaticResource MenuButton}" Cursor="Hand"  HorizontalAlignment="Right" VerticalAlignment="Center"  Command="{Binding CloseAppCommand}" ToolTip="Закрыть">
+                                <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0 0 0 0" >
+                                    <materialDesign:PackIcon Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 0 0" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Width="40"  Margin="0 0 0 0" Grid.Column="0" Style="{StaticResource MenuButton}" Cursor="Hand"  HorizontalAlignment="Right" VerticalAlignment="Center"  Command="{Binding RollUpCommand}" ToolTip="Свернуть">
+                                <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0 0 0 0" >
+                                    <materialDesign:PackIcon Kind="FullscreenExit" VerticalAlignment="Center" Margin="0 0 0 0" />
+                                </StackPanel>
+                            </Button>
                         </Grid>
-                        
-                    </StackPanel>
-                    <StackPanel>
-                        <Button  Width="190" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Command="{Binding SearchDevice}" Cursor="Hand"  >
-                            <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="0 0 0 0">
-                                <materialDesign:PackIcon Kind="Search" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
-                                <TextBlock Text="Поиск Mirro" FontSize="16"/>
-                                <materialDesign:PackIcon Kind="Success" VerticalAlignment="Center" Visibility="Visible" HorizontalAlignment="Right" Foreground="{Binding ColorSearch}"/>
-                            </StackPanel>
-                            
-                        </Button>
-                  
-                        <ComboBox Width="160" Margin="0 10 0 0" Style="{StaticResource MaterialDesignOutlinedComboBox}"  Cursor="Hand" ItemsSource="{Binding ComPorts}" SelectedItem="{Binding SelectedComPort}">
 
-                        </ComboBox>
-
-                        <Button  Width="180" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Cursor="Hand"   Command="{Binding CalibrateBtnCommand}"  >
-                            <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center" Margin="0 0 0 0">
-                                <materialDesign:PackIcon Kind="Settings" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
-                                <TextBlock Text="Калибровка" FontSize="16"/>
-                                
+                    </WrapPanel>
+                    <WrapPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0">
+                        <Button Width="40"  Margin="0 0 0 0"  Style="{StaticResource MenuButton}" Command="{Binding HelpBtnCommand}" Cursor="Hand"  HorizontalAlignment="Right" VerticalAlignment="center"   ToolTip="Увести в ноль">
+                            <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0 0 0 0" >
+                                <materialDesign:PackIcon Kind="Restart" VerticalAlignment="Center" Margin="0 0 0 0" />
                             </StackPanel>
                         </Button>
 
-                        <Button IsEnabled="True" Width="180" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Cursor="Hand"  Command="{Binding StartBtnCommand}"  >
-                            <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center" Margin="0 0 0 0" >
-                                <materialDesign:PackIcon Kind="PlayBox" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
-                                <TextBlock Text="Запустить" FontSize="16"/>
-                                <Ellipse Name="errorElipse" Fill="Green" Width="5" Height="5" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5 5 0 0" Opacity="0.7" Visibility="{Binding ColorStart}" >
-                                    <Ellipse.Triggers>
-                                        <EventTrigger RoutedEvent="Ellipse.Loaded">
+                    </WrapPanel>
+                    <Border Grid.Row="1" CornerRadius="25" Margin="0 0 10 0" Visibility="Visible" Background="#e5e5e5" >
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 0" >
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Image Grid.Row="0" Source="{Binding PathImage}"  Stretch="Fill" Height="100" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding ImageVisible}">
+                                    <Image.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
                                             <BeginStoryboard>
-                                                <Storyboard >
-                                                    <DoubleAnimation From="1.0" To="0.2" Duration="0:0:1" AutoReverse="True" RepeatBehavior="Forever" Storyboard.TargetName="errorElipse"  Storyboard.TargetProperty="Opacity"/>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0.2" Duration="0:0:1" AutoReverse="True"/>
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </EventTrigger>
-                                    </Ellipse.Triggers>
-
-                                </Ellipse>
-
-                            </StackPanel>
-
-                        </Button>
-                        <Button  Width="180" Margin="0 10 0 0" Style="{StaticResource MenuButton}" Cursor="Hand"   Command="{Binding StopBtnCommand}"  >
-                            <StackPanel Orientation="Horizontal" Width="160" VerticalAlignment="Center" Margin="0 0 0 0">
-                                <materialDesign:PackIcon Kind="Stop" VerticalAlignment="Center" Margin="0 0 5 0" Foreground="#FE6100"/>
-                                <TextBlock Text="Остановить" FontSize="16"/>
-                            </StackPanel>
-                        </Button>
-
-
-
-
-
-                    </StackPanel>
-                    <TextBlock Grid.Row="1" Text="{Binding MessageInfo}" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" />
-                </StackPanel>
-            </Border>
-
-
-            <Grid Margin="0 20 0 0" Grid.Column="1" Grid.Row="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="40"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <WrapPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
-                    <Grid>
-                        <Grid.ColumnDefinitions >
-                            <ColumnDefinition Width="40"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button Width="40"  Margin="0 0 0 0" Grid.Column="1" Style="{StaticResource MenuButton}" Cursor="Hand"  HorizontalAlignment="Right" VerticalAlignment="Center"  Command="{Binding CloseAppCommand}" ToolTip="Закрыть">
-                            <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0 0 0 0" >
-                                <materialDesign:PackIcon Kind="ExitToApp" VerticalAlignment="Center" Margin="0 0 0 0" />
-                            </StackPanel>
-                        </Button>
-
-                        <Button Width="40"  Margin="0 0 0 0" Grid.Column="0" Style="{StaticResource MenuButton}" Cursor="Hand"  HorizontalAlignment="Right" VerticalAlignment="Center"  Command="{Binding RollUpCommand}" ToolTip="Свернуть">
-                            <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0 0 0 0" >
-                                <materialDesign:PackIcon Kind="FullscreenExit" VerticalAlignment="Center" Margin="0 0 0 0" />
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-
-                </WrapPanel>
-                <WrapPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0 0 0">
-                    
-                        <Button Width="40"  Margin="0 0 0 0"  Style="{StaticResource MenuButton}" Command="{Binding HelpBtnCommand}" Cursor="Hand"  HorizontalAlignment="Right" VerticalAlignment="center"   ToolTip="Увести в ноль">
-                            <StackPanel Orientation="Horizontal"  VerticalAlignment="Center" Margin="0 0 0 0" >
-                            <materialDesign:PackIcon Kind="Restart" VerticalAlignment="Center" Margin="0 0 0 0" />
+                                    </Image.Triggers>
+                                </Image>
+                                <local:DonutSpinner  Grid.Row="0" Height="80" Width="80" Margin="0" Duration="0:0:2" SpinnerColor="#FE6100" Visibility="{Binding ConnectinPort}"/>
+                            </Grid>
+                            <TextBlock Grid.Row="1" Text="{Binding MessageInfo}" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" />
                         </StackPanel>
-                        </Button>
-                    
-                </WrapPanel>
-                <Border Grid.Row="1" CornerRadius="25" Margin="0 0 10 0" Visibility="Visible" Background="#e5e5e5" >
-                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0 0 0 30">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="40"/>
-                        </Grid.RowDefinitions>
+                    </Border>
 
-                        <Image Grid.Row="0" Source="{Binding PathImage}"  Stretch="Fill" Height="100" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding ImageVisible}">
-                            <Image.Triggers>
-                                <EventTrigger RoutedEvent="Loaded">
-                                    <BeginStoryboard>
-                                        <Storyboard RepeatBehavior="Forever">
-                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0.2" Duration="0:0:1" AutoReverse="True"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger>
-                            </Image.Triggers>
-                        </Image>
-                        
-                        <local:DonutSpinner  Grid.Row="0" Height="80" Width="80" Margin="10, 0" Duration="0:0:2" SpinnerColor="#FE6100" Visibility="{Binding ConnectinPort}"/>
-
-                        <TextBlock Grid.Row="1" Text="{Binding MessageInfo}" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="12" FontWeight="Bold" />
-
-                    </Grid>
-                   
-                </Border>
+                </Grid>
 
             </Grid>
-         
-        </Grid>
 
-    </Border>
+        </Border>
+    </Grid>
+   
 </Window>

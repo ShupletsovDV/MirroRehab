@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +23,27 @@ namespace MRTest
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MediaPlayer mediaPlayer = new MediaPlayer();
         public MainWindow()
         {
             InitializeComponent();
-           
+            //MainWind.Visibility = Visibility.Hidden;
+            //mediaPlayer.Open(new Uri("E:\\Download\\ssstik.io_1723799913817.wav"));
+            //mediaPlayer.Play();
+
+            //mediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
+
+
         }
-       
+        private void MediaPlayer_MediaEnded(object sender, EventArgs e)
+        {
+            // Когда музыка закончила играть, показываем MainWind
+            MainWind.Visibility = Visibility.Visible;
+            ww.Visibility = Visibility.Hidden;
+
+            // Не забудьте отключить обработчик события, если он больше не нужен
+            mediaPlayer.MediaEnded -= MediaPlayer_MediaEnded;
+        }
         private void MainWind_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)

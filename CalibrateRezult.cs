@@ -23,11 +23,11 @@ namespace MRTest
       
 
 
-        public static double maxThumb = 1.20;//1.20
-        public static double maxIndex = 3.0;//3.0
-        public static double maxMiddle = 3.0;//3.0
-        public static double maxRing = 3.0;//3.0
-        public static double maxPinky = 3.0; //3.0
+        public static double maxThumb = 1.2;//1.20
+        public static double maxIndex = 0.7;//3.0
+        public static double maxMiddle = 0.7;//3.0
+        public static double maxRing = 0.7;//3.0
+        public static double maxPinky = 0.7; //3.0
 
 
         public static double minThumb = 0.0;

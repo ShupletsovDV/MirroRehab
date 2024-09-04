@@ -51,7 +51,7 @@ namespace MRTest.Services
                
                 (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
                 
-                string data = $"{Dictionaries.MyDictReverse[angIndex]},{Dictionaries.MyDictReverse[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]},{Dictionaries.MyDictThumb[angThumb]}";
+                string data = $"{Dictionaries.MyDict[angPinky]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDictReverse[angMiddle]},{Dictionaries.MyDictReverse[angIndex]},{Dictionaries.MyDictThumb[angThumb]}";
                 string test = $"\n{angThumb}   {angIndex}  {angMiddle}  {angRing}  {angPinky}\n";//+data
                 serialPortService.SendData(data);
                 Notifications.GetNotifications().InvokeCommonStatus(test, Notifications.NotificationEvents.PositionProcessor);
