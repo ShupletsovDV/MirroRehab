@@ -118,8 +118,9 @@ namespace MRTest.Services
                             (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
 
                             calibrationData.Add(new List<double> { angThumb, angIndex, angMiddle, angRing, angPinky });
-                            string data = $"{Dictionaries.MyDict[angIndex]},{Dictionaries.MyDict[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]},{Dictionaries.MyDictThumb[angThumb]}\n";
-                            _serialPortService.SendData(data);
+                            /*string data = $"{Dictionaries.MyDict[angIndex]},{Dictionaries.MyDict[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]},{Dictionaries.MyDictThumb[angThumb]}\n";*/
+                            /*string data = $"{Dictionaries.MyDict[angIndex]},{Dictionaries.MyDict[angMiddle]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDict[angPinky]},{0}\n";
+                            _serialPortService.SendData(data);*/
                         }
                     }
                     catch(Exception ex)

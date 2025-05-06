@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MRTest"
         mc:Ignorable="d"
-        Title="SettingsWindow" Height="550" Width="400">
+        Title="SettingsWindow" x:Name="win" Height="500" Width="400" WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
@@ -17,35 +17,43 @@
             <RowDefinition Height="90"/>
             <RowDefinition Height="90"/>
             <RowDefinition Height="90"/>
-            <RowDefinition Height="*"/>
+          
         </Grid.RowDefinitions>
-        
-        <Label Grid.Row="0" Grid.Column="0" Content="Большой палец разгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
-        <Label Grid.Row="0" Grid.Column="0" Content="Большой палец сгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
-        <Slider  Grid.Row="0" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged"></Slider>
-        <Slider  Grid.Row="0" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_1"></Slider>
-
-        
-        <Label Grid.Row="1" Grid.Column="0" Content="Указательный палец разгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
-        <Label Grid.Row="1" Grid.Column="0" Content="Указательный палец сгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
-        <Slider  Grid.Row="1" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_2"></Slider>
-        <Slider  Grid.Row="1" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_3"></Slider>
 
 
-        <Label Grid.Row="2" Grid.Column="0" Content="Средний палец разгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
-        <Label Grid.Row="2" Grid.Column="0" Content="Средний палец сгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
-        <Slider  Grid.Row="2" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_4"></Slider>
-        <Slider  Grid.Row="2" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_5"></Slider>
 
-        <Label Grid.Row="3" Grid.Column="0" Content="Безымянный палец разгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
-        <Label Grid.Row="3" Grid.Column="0" Content="Безымянный палец сгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
-        <Slider  Grid.Row="3" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_6"></Slider>
-        <Slider  Grid.Row="3" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_7"></Slider>
+        <Label Grid.Row="0" Grid.Column="0" Content="Указательный палец сгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
+        <Label Grid.Row="0" Grid.Column="0" Content="Указательный палец разгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
 
-        <Label Grid.Row="4" Grid.Column="0" Content="Мизинец палец разгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
-        <Label Grid.Row="4" Grid.Column="0" Content="Мизинец палец сгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
-        <Slider  Grid.Row="4" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_8"></Slider>
-        <Slider  Grid.Row="4" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="180" Minimum="0" TickFrequency="5" IsSnapToTickEnabled="True" ValueChanged="Slider_ValueChanged_9"></Slider>
+        <Slider x:Name="IndexSgib" Grid.Row="0" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="120" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="IndexSgib_ValueChanged" SmallChange="1"></Slider>
+        <Slider x:Name="IndexRasgib" Grid.Row="0" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="120" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="IndexRasgib_ValueChanged" SmallChange="1">
+           
+        </Slider>
 
+
+
+        <Label Grid.Row="1" Grid.Column="0" Content="Средний палец разгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="Средний палец сгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
+
+        <Slider x:Name="MiddleSgib" Grid.Row="1" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="120" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="MiddleSgib_ValueChanged"></Slider>
+        <Slider x:Name="MiddleRasgib"  Grid.Row="1" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="120" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="MiddleRasgib_ValueChanged">
+        </Slider>
+
+        <Label Grid.Row="2" Grid.Column="0" Content="Безымянный палец разгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
+        <Label Grid.Row="2" Grid.Column="0" Content="Безымянный палец сгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
+
+        <Slider x:Name="RingSgib" Grid.Row="2" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="180" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="RingSgib_ValueChanged"></Slider>
+        <Slider x:Name="RingRasgib" Grid.Row="2" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="180" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="RingRasgib_ValueChanged">
+        </Slider>
+
+        <Label Grid.Row="3" Grid.Column="0" Content="Мизинец палец разгиб" VerticalAlignment="Bottom" Margin="0 0 0 10" HorizontalAlignment="Center"/>
+        <Label Grid.Row="3" Grid.Column="0" Content="Мизинец палец сгиб" VerticalAlignment="Top" Margin="0 10 0 0" HorizontalAlignment="Center"/>
+
+        <Slider x:Name="PinkySgib" Grid.Row="3" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Top" Margin="0 10 0 0" Maximum="180" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="PinkySgib_ValueChanged"></Slider>
+        <Slider x:Name="PinkyRasgib" Grid.Row="3" Grid.Column="1" Width="150" Height="25" VerticalAlignment="Bottom" Margin="0 0 0 10" Maximum="180" Minimum="0" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="PinkyRasgib_ValueChanged">
+        </Slider>
+
+
+        <Button Grid.Row="4" Grid.ColumnSpan="2" Content="Сохранить" Foreground="White" Width="150" Click="Button_Click"/>
     </Grid>
 </Window>

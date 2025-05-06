@@ -9,7 +9,7 @@ namespace MRTest.Interfaces
 {
     public interface IPositionProcessor
     {
-        void ProcessPosition(dynamic receiveData, ISerialPortService serialPortService);
+        void ProcessPosition(JsonModel receiveData, ISerialPortService serialPortService);
     }
 
 }

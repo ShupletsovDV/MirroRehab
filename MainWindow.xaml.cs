@@ -27,11 +27,11 @@ namespace MRTest
         public MainWindow()
         {
             InitializeComponent();
-            //MainWind.Visibility = Visibility.Hidden;
-            //mediaPlayer.Open(new Uri("E:\\Download\\ssstik.io_1723799913817.wav"));
-            //mediaPlayer.Play();
+           /* MainWind.Visibility = Visibility.Hidden;
+            mediaPlayer.Open(new Uri("E:\\Download\\ssstik.io_1723799913817.wav"));
+            mediaPlayer.Play();
 
-            //mediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
+            mediaPlayer.MediaEnded += MediaPlayer_MediaEnded;*/
 
 
         }

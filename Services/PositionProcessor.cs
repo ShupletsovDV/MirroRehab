@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using MathNet.Spatial.Units;
 using System.Reflection;
+using MRTest.ViewModels;
 
 namespace MRTest.Services
 {   //указательный, инверсия
@@ -30,7 +31,7 @@ namespace MRTest.Services
             return QuaternionClass.ExtractBendAngle(relativeRotationMatrix);
         }
 
-        public void ProcessPosition(dynamic receiveData, ISerialPortService serialPortService)
+        public void ProcessPosition(JsonModel receiveData, ISerialPortService serialPortService)
         {
             try
             {
@@ -50,15 +51,33 @@ namespace MRTest.Services
                 double angPinky = Math.Round(receiveData.data.fingers[4].ang[0], 1);
                
                 (angThumb, angIndex, angMiddle, angRing, angPinky) = MaxMin(angThumb, angIndex, angMiddle, angRing, angPinky);
+
+                string data = "";
+                string type = "";
+                string fingers = "";
+                if (receiveData.data.type == "lh")
+                {
+                    type = "right mirro hand";
+                    fingers = $"Угол Senso: {angIndex},{angMiddle},{angRing},{angPinky}";
+                    data = $"{Dictionaries.DictIndex[angIndex]},{Dictionaries.DictMiddle[angMiddle]},{Dictionaries.DictRing[angRing]},{Dictionaries.DictPinky[angPinky]},0";
+                }
+                else
+                {
+                    type = "left mirro hand";
+                    fingers = $"Угол Senso: {angPinky},{angRing},{angMiddle},{angIndex}";
+                    data = $"{Dictionaries.DictPinkyRight[angPinky]},{Dictionaries.DictRingRight[angRing]},{Dictionaries.DictMiddleRight[angMiddle]},{Dictionaries.DictIndexRight[angIndex]},0";
+                }
                 
-                string data = $"{Dictionaries.MyDict[angPinky]},{Dictionaries.MyDict[angRing]},{Dictionaries.MyDictReverse[angMiddle]},{Dictionaries.MyDictReverse[angIndex]},{Dictionaries.MyDictThumb[angThumb]}";
-                string test = $"\n{angThumb}   {angIndex}  {angMiddle}  {angRing}  {angPinky}\n";//+data
+                string test = $"\n{fingers}\nУгол Mirro: {data}\n{type}";
                 serialPortService.SendData(data);
                 Notifications.GetNotifications().InvokeCommonStatus(test, Notifications.NotificationEvents.PositionProcessor);
             }
-            catch
+            catch(Exception ex)
             {
-                throw new Exception();
+                MainWindowViewModel.Log.Error($"\nОшибка при обработке данных SENSO: {ex}");
+
+                throw new InvalidOperationException(ex.Message);
+                //throw new Exception();
             }
 
         }

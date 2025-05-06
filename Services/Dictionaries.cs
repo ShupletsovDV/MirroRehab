@@ -8,138 +8,96 @@ namespace MRTest.Services
 {
     public static class Dictionaries
     {
-        public static readonly Dictionary<double, int> MyDict = new Dictionary<double, int>
+        public static int MaxIndex = 170;
+        public static int MaxMiddle = 0;
+        public static int MaxRing = 170;
+        public static int MaxPinky = 0;
+
+        public static int MinIndex = 0;
+        public static int MinMiddle = 170;
+        public static int MinRing = 0;
+        public static int MinPinky = 170;
+
+
+        public static int MaxIndexRight = 0;
+        public static int MaxMiddleRight = 170;
+        public static int MaxRingRight = 0;
+        public static int MaxPinkyRight = 170;
+
+        public static int MinIndexRight = 170;
+        public static int MinMiddleRight = 0;
+        public static int MinRingRight = 170;
+        public static int MinPinkyRight = 0;
+
+
+        public static  Dictionary<double, int> DictIndex = new(); // no reverse
+        public static  Dictionary<double, int> DictMiddle = new(); // reverse
+        public static  Dictionary<double, int> DictRing = new(); // no reverse
+        public static  Dictionary<double, int> DictPinky = new(); // reverse
+
+
+        public static Dictionary<double, int> DictIndexRight = new(); // reverse
+        public static Dictionary<double, int> DictMiddleRight = new(); //no reverse
+        public static Dictionary<double, int> DictRingRight = new(); // reverse
+        public static Dictionary<double, int> DictPinkyRight = new(); //no reverse
+
+
+        public static Dictionary<double, int> MyDict = new Dictionary<double, int>
+         {
+
+              {0.0, 0}, {0.1, 2}, {0.2, 4}, {0.3, 8}, {0.4, 12}, {0.5, 14}, {0.6, 16},
+             {0.7, 18}, {0.8, 20}, {0.9, 22}, {1.0, 24}, {1.1, 26}, {1.2, 28}, {1.3, 30},
+             {1.4, 32}, {1.5, 34}, {1.6, 36}, {1.7, 38}, {1.8, 40}, {1.9, 42}, {2.0, 44},
+             {2.1, 46}, {2.2, 48}, {2.3, 50}, {2.4, 52}, {2.5, 54}, {2.6, 56}, {2.7, 58},
+             {2.8, 60}, {2.9, 62}, {3.0, 68}
+
+         };
+        public static Dictionary<double, int> MyDictReverse = new Dictionary<double, int>
+         {
+             {0.0, 68}, {0.1, 64}, {0.2, 62}, {0.3, 60}, {0.4, 58}, {0.5, 56}, {0.6, 54},
+             {0.7, 52}, {0.8, 50}, {0.9, 48}, {1.0, 46}, {1.1, 44}, {1.2, 42}, {1.3, 40},
+             {1.4, 38}, {1.5, 36}, {1.6, 34}, {1.7, 32}, {1.8, 30}, {1.9, 28}, {2.0, 26},
+             {2.1, 24}, {2.2, 22}, {2.3, 20}, {2.4, 18}, {2.5, 16}, {2.6, 14}, {2.7, 12},
+             {2.8, 10}, {2.9, 8}, {3.0, 2}
+         };
+
+        public static Dictionary<double, int> RedistributeValues(Dictionary<double, int> dict, int minValue, int maxValue, bool reverse = false)
         {
+            if (dict.Count == 0) return new Dictionary<double, int>();
 
-            {0.0, 0}, {0.1, 6}, {0.2, 12}, {0.3, 18}, {0.4, 24}, {0.5, 30}, {0.6, 36},
-            {0.7, 42}, {0.8, 48}, {0.9, 54}, {1.0, 60}, {1.1, 66}, {1.2, 72}, {1.3, 78},
-            {1.4, 84}, {1.5, 90}, {1.6, 96}, {1.7, 102}, {1.8, 108}, {1.9, 114}, {2.0, 120},
-            {2.1, 126}, {2.2, 132}, {2.3, 138}, {2.4, 144}, {2.5, 150}, {2.6, 156}, {2.7, 162},
-            {2.8, 168}, {2.9, 174}, {3.0, 180}, {3.1, 180}
+            int oldMin = dict.Values.Min();
+            int oldMax = dict.Values.Max();
 
+            if (oldMin == oldMax)
+            {
+                return dict.ToDictionary(kvp => kvp.Key, kvp => minValue);
+            }
 
-            /*{0.0, 12}, {0.1, 18}, {0.2, 24}, {0.3, 30}, {0.4, 36}, {0.5, 42}, {0.6, 42},
-            {0.7, 48}, {0.8, 54}, {0.9, 60}, {1.0, 66}, {1.1, 72}, {1.2, 78}, {1.3, 84},
-            {1.4, 90}, {1.5, 96}, {1.6, 102}, {1.7, 102}, {1.8, 108}, {1.9, 114}, {2.0, 120},
-            {2.1, 126}, {2.2, 132}, {2.3, 138}, {2.4, 144}, {2.5, 150}, {2.6, 156}, {2.7, 162},
-            {2.8, 168}, {2.9, 174}, {3.0, 180}, {3.1, 180}*/
+            Dictionary<double, int> newDict = new Dictionary<double, int>();
 
-        };
-        public static readonly Dictionary<double, int> MyDictReverse = new Dictionary<double, int>
-        {
-            {0.0, 180}, {0.1, 180}, {0.2, 174}, {0.3, 168}, {0.4, 162}, {0.5, 156}, {0.6, 150},
-            {0.7, 144}, {0.8, 138}, {0.9, 132}, {1.0, 126}, {1.1, 120}, {1.2, 114}, {1.3, 108},
-            {1.4, 102}, {1.5, 96}, {1.6, 90}, {1.7, 84}, {1.8, 78}, {1.9, 72}, {2.0, 66},
-            {2.1, 60}, {2.2, 54}, {2.3, 48}, {2.4, 42}, {2.5, 36}, {2.6, 30}, {2.7, 24},
-            {2.8, 18}, {2.9, 12}, {3.0, 6}, {3.1, 0}
-        };
-        public static readonly Dictionary<double, int> MyDictIndex = new Dictionary<double, int>
-        {
-            {0.0, 9}, {0.1, 9}, {0.2, 9}, {0.3, 9}, {0.4, 8}, {0.5, 8}, {0.6, 8},
-            {0.7, 7}, {0.8, 7}, {0.9, 7}, {1.0, 6}, {1.1, 6}, {1.2, 6}, {1.3, 5},
-            {1.4, 5}, {1.5, 5}, {1.6, 4}, {1.7, 4}, {1.8, 4}, {1.9, 3}, {2.0, 3},
-            {2.1, 3}, {2.2, 2}, {2.3, 2}, {2.4, 2}, {2.5, 1}, {2.6, 0}, {2.7, 0},
-            {2.8, 0}, {2.9, 0}, {3.0, 0}, {3.1, 0}
-        };
+            foreach (var kvp in dict)
+            {
+                double key = kvp.Key;
+                int oldValue = kvp.Value;
 
-        public static readonly Dictionary<double, int> MyDictThumb = new Dictionary<double, int>
-        {
-            {0.00, 0}, {0.01, 0}, {0.02, 0}, {0.03, 0}, {0.04, 5}, {0.05, 5}, {0.06, 5},
-            {0.07, 5}, {0.08, 10}, {0.09, 10}, {0.10, 10}, {0.11, 10}, {0.12, 15}, {0.13, 15},
-            {0.14, 15}, {0.15, 15}, {0.16, 20}, {0.17, 20}, {0.18, 20}, {0.19, 20}, {0.20, 25},
-            {0.21, 25}, {0.22, 25}, {0.23, 25}, {0.24, 30}, {0.25, 30}, {0.26, 30}, {0.27, 30},
-            {0.28, 35}, {0.29, 35}, {0.30, 35}, {0.31, 35}, {0.32, 40}, {0.33, 40}, {0.34, 40},
-            {0.35, 40}, {0.36, 45}, {0.37, 45}, {0.38, 45}, {0.39, 45}, {0.40, 50}, {0.41, 50},
-            {0.42, 50}, {0.43, 50}, {0.44, 55}, {0.45, 55}, {0.46, 55}, {0.47, 55}, {0.48, 60},
-            {0.49, 60}, {0.50, 60}, {0.51, 60}, {0.52, 65}, {0.53, 65}, {0.54, 65}, {0.55, 65},
-            {0.56, 70}, {0.57, 70}, {0.58, 70}, {0.59, 70}, {0.60, 75}, {0.61, 75}, {0.62, 75},
-            {0.63, 75}, {0.64, 80}, {0.65, 80}, {0.66, 80}, {0.67, 80}, {0.68, 85}, {0.69, 85},
-            {0.70, 85}, {0.71, 85}, {0.72, 90}, {0.73, 90}, {0.74, 90}, {0.75, 90}, {0.76, 95},
-            {0.77, 95}, {0.78, 95}, {0.79, 95}, {0.80, 100}, {0.81, 100}, {0.82, 100}, {0.83, 100},
-            {0.84, 105}, {0.85, 105}, {0.86, 105}, {0.87, 105}, {0.88, 110}, {0.89, 110}, {0.90, 110},
-            {0.91, 110}, {0.92, 115}, {0.93, 115}, {0.94, 115}, {0.95, 115}, {0.96, 120}, {0.97, 120},
-            {0.98, 120}, {0.99, 120}, {1.00, 125}, {1.01, 125}, {1.02, 125}, {1.03, 125}, {1.04, 130},
-            {1.05, 130}, {1.06, 130}, {1.07, 130}, {1.08, 135}, {1.09, 135}, {1.10, 135}, {1.11, 135},
-            {1.12, 140}, {1.13, 140}, {1.14, 140}, {1.15, 140}, {1.16, 145}, {1.17, 145}, {1.18, 145},
-            {1.19, 145}, {1.20, 150},{1.21, 155},{1.22, 160},{1.23, 165},{1.24, 165},{1.25, 170},
-        };
-        public static readonly Dictionary<int, List<double>> MyDictThumbCalibrate = new Dictionary<int, List<double>>
-        {
-            {0, new List<double> {0.00, 0.01, 0.02, 0.03}},
-            {5, new List<double> {0.04, 0.05, 0.06, 0.07}},
-            {10, new List<double> {0.08, 0.09, 0.10, 0.11}},
-            {15, new List<double> {0.12, 0.13, 0.14, 0.15}},
-            {20, new List<double> {0.16, 0.17, 0.18, 0.19}},
-            {25, new List<double> {0.20, 0.21, 0.22, 0.23}},
-            {30, new List<double> {0.24, 0.25, 0.26, 0.27}},
-            {35, new List<double> {0.28, 0.29, 0.30, 0.31}},
-            {40, new List<double> {0.32, 0.33, 0.34, 0.35}},
-            {45, new List<double> {0.36, 0.37, 0.38, 0.39}},
-            {50, new List<double> {0.40, 0.41, 0.42, 0.43}},
-            {55, new List<double> {0.44, 0.45, 0.46, 0.47}},
-            {60, new List<double> {0.48, 0.49, 0.50, 0.51}},
-            {65, new List<double> {0.52, 0.53, 0.54, 0.55}},
-            {70, new List<double> {0.56, 0.57, 0.58, 0.59}},
-            {75, new List<double> {0.60, 0.61, 0.62, 0.63}},
-            {80, new List<double> {0.64, 0.65, 0.66, 0.67}},
-            {85, new List<double> {0.68, 0.69, 0.70, 0.71}},
-            {90, new List<double> {0.72, 0.73, 0.74, 0.75}},
-            {95, new List<double> {0.76, 0.77, 0.78, 0.79}},
-            {100, new List<double> {0.80, 0.81, 0.82, 0.83}},
-            {105, new List<double> {0.84, 0.85, 0.86, 0.87}},
-            {110, new List<double> {0.88, 0.89, 0.90, 0.91}},
-            {115, new List<double> {0.92, 0.93, 0.94, 0.95}},
-            {120, new List<double> {0.96, 0.97, 0.98, 0.99}},
-            {125, new List<double> {1.00, 1.01, 1.02, 1.03}},
-            {130, new List<double> {1.04, 1.05, 1.06, 1.07}},
-            {135, new List<double> {1.08, 1.09, 1.10, 1.11}},
-            {140, new List<double> {1.12, 1.13, 1.14, 1.15}},
-            {145, new List<double> {1.16, 1.17, 1.18, 1.19}},
-            {150, new List<double> {1.20}},
-            {155, new List<double> {1.21}},
-            {160, new List<double> {1.22}},
-            {165, new List<double> {1.23, 1.24}},
-            {170, new List<double> {1.25}}
-        };
-        public static readonly Dictionary<int, List<double>> MyDictCalibrate = new Dictionary<int, List<double>>
-        {
-            {0, new List<double> {0.0}},
-            {6, new List<double> {0.1}},
-            {12, new List<double> {0.2}},
-            {18, new List<double> {0.3}},
-            {24, new List<double> {0.4}},
-            {30, new List<double> {0.5}},
-            {36, new List<double> {0.6}},
-            {42, new List<double> {0.7}},
-            {48, new List<double> {0.8}},
-            {54, new List<double> {0.9}},
-            {60, new List<double> {1.0}},
-            {66, new List<double> {1.1}},
-            {72, new List<double> {1.2}},
-            {78, new List<double> {1.3}},
-            {84, new List<double> {1.4}},
-            {90, new List<double> {1.5}},
-            {96, new List<double> {1.6}},
-            {102, new List<double> {1.7}},
-            {108, new List<double> {1.8}},
-            {114, new List<double> {1.9}},
-            {120, new List<double> {2.0}},
-            {126, new List<double> {2.1}},
-            {132, new List<double> {2.2}},
-            {138, new List<double> {2.3}},
-            {144, new List<double> {2.4}},
-            {150, new List<double> {2.5}},
-            {156, new List<double> {2.6}},
-            {162, new List<double> {2.7}},
-            {168, new List<double> {2.8}},
-            {174, new List<double> {2.9}},
-            {180, new List<double> {3.0, 3.1}}
-        };
+                // Реверсируем значение относительно старого диапазона, если нужно
+                if (reverse)
+                {
+                    oldValue = oldMax - (oldValue - oldMin);
+                }
 
+                // Преобразуем значение в новый диапазон
+                int newValue = (int)Math.Round(((double)(oldValue - oldMin) / (oldMax - oldMin)) * (maxValue - minValue) + minValue);
 
+                newDict[key] = newValue;
+            }
 
+            return newDict;
+        }
 
 
     }
+
+   
 
 }

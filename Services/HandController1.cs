@@ -1,13 +1,7 @@
 ﻿using MRTest.Interfaces;
-using Newtonsoft.Json.Linq;
+using MRTest.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.IO.Ports;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace MRTest.Services
 {
@@ -21,9 +15,9 @@ namespace MRTest.Services
         private static HandController1 handController;
         public static HandController1 GetHandController()
         {
-            if(handController==null)
+            if (handController == null)
             {
-                handController= new HandController1(new CalibrationService(), new UdpClientService(), new PositionProcessor(), new SerialPortService());
+                handController = new HandController1(new CalibrationService(), new UdpClientService(), new PositionProcessor(), SerialPortService.GetInstance());
                 return handController;
             }
             else { return handController; }
@@ -40,19 +34,20 @@ namespace MRTest.Services
         {
             try
             {
-                Notifications.GetNotifications().InvokeCommonStatus("Проверка подключения к устройству",Notifications.NotificationEvents.ConnectionPort);
+                Notifications.GetNotifications().InvokeCommonStatus("Проверка подключения к устройству", Notifications.NotificationEvents.ConnectionPort);
                 OpenPort(port);
                 ClosePort();
                 return true;
             }
-            catch 
+            catch(Exception ex)
             {
+                MainWindowViewModel.Log.Error($"\nОшибка при проверке порта: {ex}");
                 Notifications.GetNotifications().InvokeCommonStatus("Не удалось подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
-                return false; 
+                return false;
             }
-            
+
         }
-        public void ClosePort() 
+        public void ClosePort()
         {
             _serialPortService.ClosePort();
         }
@@ -68,10 +63,10 @@ namespace MRTest.Services
         {
             try
             {
-                string defaultData = "180,0,180,180,0\n";
+                string defaultData = $"{Dictionaries.MinIndex},{Dictionaries.MinMiddle},{Dictionaries.MinRing},{Dictionaries.MinPinky},0\n";
                 Notifications.GetNotifications().InvokeCommonStatus("Проверка подключения к устройству", Notifications.NotificationEvents.ConnectionPort);
                 OpenPort(port);
-                for(int i= 0; i < 10;i++)
+                for (int i = 0; i < 10; i++)
                 {
                     SendPort(defaultData);
                 }
@@ -79,20 +74,26 @@ namespace MRTest.Services
                 Notifications.GetNotifications().InvokeCommonStatus("Настройки Mirro сброшены", Notifications.NotificationEvents.Success);
 
             }
-            catch
+            catch(Exception ex)
             {
+                MainWindowViewModel.Log.Error($"\nОшибка при отправке default значение: {ex}");
                 Notifications.GetNotifications().InvokeCommonStatus("Не удалось подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
-               
+
             }
         }
         public void DemoMirro(CancellationToken cancellationToken, string port)
         {
+            int sleep = 50;
+           
             try
             {
                 Notifications.GetNotifications().InvokeCommonStatus("Проверка подключения к устройству", Notifications.NotificationEvents.ConnectionPort);
-                //OpenPort(port);
+                OpenPort(port);
+
                 while (true)
                 {
+                    
+                    sleep =new Random().Next(10,60);
                     if (cancellationToken.IsCancellationRequested)
                     {
                         ClosePort();
@@ -100,7 +101,8 @@ namespace MRTest.Services
                         break;
                     }
 
-                    for (int i = 0; i<=7;i++)
+                    // Сжатие всех пальцев
+                    for (double i = 0.0; i <= 3.0; i += 0.1)
                     {
                         if (cancellationToken.IsCancellationRequested)
                         {
@@ -108,26 +110,18 @@ namespace MRTest.Services
                             Notifications.GetNotifications().InvokeCommonStatus("Stop", Notifications.NotificationEvents.Success);
                             break;
                         }
-                        string defaultData = $"{Dictionaries.MyDict[i/10.0]},{Dictionaries.MyDict[i/10.0]},{Dictionaries.MyDictReverse[i/10.0]},{Dictionaries.MyDictReverse[i/10.0]},0";
+
+                        // Округляем значение i до одного знака после запятой
+                        double roundedI = Math.Round(i, 1);
+
+                        string defaultData = $"{Dictionaries.DictIndex[roundedI]},{Dictionaries.DictMiddle[roundedI]},{Dictionaries.DictRing[roundedI]},{Dictionaries.DictPinky[roundedI]},0";
                         Notifications.GetNotifications().InvokeCommonStatus(defaultData, Notifications.NotificationEvents.ConnectionPort);
-                        Thread.Sleep(400);
-                        SendPort(defaultData);
-                    }
-                    for (int i = 7;i>=0;i--)
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            ClosePort();
-                            Notifications.GetNotifications().InvokeCommonStatus("Stop", Notifications.NotificationEvents.Success);
-                            break;
-                        }
-                        string defaultData = $"{Dictionaries.MyDict[i/10.0]},{Dictionaries.MyDict[i/10.0]},{Dictionaries.MyDictReverse[i/10.0]},{Dictionaries.MyDictReverse[i/10.0]},0";
-                        Notifications.GetNotifications().InvokeCommonStatus(defaultData, Notifications.NotificationEvents.ConnectionPort);
-                        Thread.Sleep(400);
+                        Thread.Sleep(sleep);
                         SendPort(defaultData);
                     }
 
-                    for (int i=0;i<4;i++)
+                    // Аналогично для других циклов
+                    for (double i = 3.0; i >= 0.0; i -= 0.1)
                     {
                         if (cancellationToken.IsCancellationRequested)
                         {
@@ -135,7 +129,28 @@ namespace MRTest.Services
                             Notifications.GetNotifications().InvokeCommonStatus("Stop", Notifications.NotificationEvents.Success);
                             break;
                         }
-                        for (int j = 0;j<=7;j++)
+
+                        // Округляем значение i до одного знака после запятой
+                        double roundedI = Math.Round(i, 1);
+
+                        string defaultData = $"{Dictionaries.DictIndex[roundedI]},{Dictionaries.DictMiddle[roundedI]},{Dictionaries.DictRing[roundedI]},{Dictionaries.DictPinky[roundedI]},0";
+                        Notifications.GetNotifications().InvokeCommonStatus(defaultData, Notifications.NotificationEvents.ConnectionPort);
+                        Thread.Sleep(sleep);
+                        SendPort(defaultData);
+                    }
+
+                    // Аналогично для цикла сжатия и разжатия пальцев по отдельности
+                    for (int finger = 0; finger < 4; finger++)
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            ClosePort();
+                            Notifications.GetNotifications().InvokeCommonStatus("Stop", Notifications.NotificationEvents.Success);
+                            break;
+                        }
+
+                        // Сжатие одного пальца
+                        for (double i = 0.0; i <= 3.0; i += 0.1)
                         {
                             if (cancellationToken.IsCancellationRequested)
                             {
@@ -143,60 +158,27 @@ namespace MRTest.Services
                                 Notifications.GetNotifications().InvokeCommonStatus("Stop", Notifications.NotificationEvents.Success);
                                 break;
                             }
-                            string a1 = "";
-                            string b1 = "";
-                            string c1 = "";
-                            string f1 = "";
-                            if (i==0)
-                            {
-                            
-                                a1 = $"{Dictionaries.MyDict[j / 10.0]}";
-                                b1 = $"{Dictionaries.MyDict[0.0]}";
-                                c1 = $"{Dictionaries.MyDictReverse[0.0]}";
-                                f1 = $"{Dictionaries.MyDictReverse[0.0]}";
 
-                            }
-                            if(i==1)
-                            {
-                                a1 = $"{Dictionaries.MyDict[0.7]}";
-                                b1 = $"{Dictionaries.MyDict[j / 10.0]}";
-                                c1 = $"{Dictionaries.MyDictReverse[0.0]}";
-                                f1 = $"{Dictionaries.MyDictReverse[0.0]}";
-                            }
-                            if (i == 2)
-                            {
-                                a1 = $"{Dictionaries.MyDict[0.7]}";
-                                b1 = $"{Dictionaries.MyDict[0.7]}";
-                                c1 = $"{Dictionaries.MyDictReverse[j / 10.0]}";
-                                f1 = $"{Dictionaries.MyDictReverse[0.0]}";
-                            }
-                            if (i == 3)
-                            {
-                                a1 = $"{Dictionaries.MyDict[0.7]}";
-                                b1 = $"{Dictionaries.MyDict[0.7]}";
-                                c1 = $"{Dictionaries.MyDictReverse[0.7]}";
-                                f1 = $"{Dictionaries.MyDictReverse[j / 10.0]}";
-                            }
-                            string defaultData = 
-                                $"{a1}," +
-                                $"{b1}," +
-                                $"{c1}," +
-                                $"{f1},0";
+                            // Округляем значение i до одного знака после запятой
+                            double roundedI = Math.Round(i, 1);
+
+                            /* string a1 = finger == 0 ? $"{Dictionaries.MyDictReverse[roundedI]}" : $"{Dictionaries.MyDictReverse[0.0]}";
+                             string b1 = finger == 1 ? $"{Dictionaries.MyDict[roundedI]}" : $"{Dictionaries.MyDict[0.0]}";
+                             string c1 = finger == 2 ? $"{Dictionaries.MyDictReverse[roundedI]}" : $"{Dictionaries.MyDictReverse[0.0]}";
+                             string f1 = finger == 3 ? $"{Dictionaries.MyDict[roundedI]}" : $"{Dictionaries.MyDict[0.0]}";*/
+                            string a1 = finger == 0 ? $"{Dictionaries.DictIndex[roundedI]}" : $"{Dictionaries.DictIndex[0.0]}";
+                            string b1 = finger == 1 ? $"{Dictionaries.DictMiddle[roundedI]}" : $"{Dictionaries.DictMiddle[0.0]}";
+                            string c1 = finger == 2 ? $"{Dictionaries.DictRing[roundedI]}" : $"{Dictionaries.DictRing[0.0]}";
+                            string f1 = finger == 3 ? $"{Dictionaries.DictPinky[roundedI]}" : $"{Dictionaries.DictPinky[0.0]}";
+
+                            string defaultData = $"{a1},{b1},{c1},{f1},{a1}";
                             Notifications.GetNotifications().InvokeCommonStatus(defaultData, Notifications.NotificationEvents.ConnectionPort);
-                            Thread.Sleep(400);
+                            Thread.Sleep(sleep);
                             SendPort(defaultData);
                         }
-                    }
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            ClosePort();
-                            Notifications.GetNotifications().InvokeCommonStatus("Stop", Notifications.NotificationEvents.Success);
-                            break;
-                        }
 
-                        for (int j = 7; j>=0 ; j--)
+                        // Разжатие одного пальца
+                        for (double i = 3.0; i >= 0.0; i -= 0.1)
                         {
                             if (cancellationToken.IsCancellationRequested)
                             {
@@ -204,57 +186,29 @@ namespace MRTest.Services
                                 Notifications.GetNotifications().InvokeCommonStatus("Stop", Notifications.NotificationEvents.Success);
                                 break;
                             }
-                            string a1 = "";
-                            string b1 = "";
-                            string c1 = "";
-                            string f1 = "";
-                            if (i == 0)
-                            {
 
-                                a1 = $"{Dictionaries.MyDict[j / 10.0]}";
-                                b1 = $"{Dictionaries.MyDict[0.7]}";
-                                c1 = $"{Dictionaries.MyDictReverse[0.7]}";
-                                f1 = $"{Dictionaries.MyDictReverse[0.7]}";
+                            // Округляем значение i до одного знака после запятой
+                            double roundedI = Math.Round(i, 1);
 
-                            }
-                            if (i == 1)
-                            {
-                                a1 = $"{Dictionaries.MyDict[0.0]}";
-                                b1 = $"{Dictionaries.MyDict[j / 10.0]}";
-                                c1 = $"{Dictionaries.MyDictReverse[0.7]}";
-                                f1 = $"{Dictionaries.MyDictReverse[0.7]}";
-                            }
-                            if (i == 2)
-                            {
-                                a1 = $"{Dictionaries.MyDict[0.0]}";
-                                b1 = $"{Dictionaries.MyDict[0.0]}";
-                                c1 = $"{Dictionaries.MyDictReverse[j / 10.0]}";
-                                f1 = $"{Dictionaries.MyDictReverse[0.7]}";
-                            }
-                            if (i == 3)
-                            {
-                                a1 = $"{Dictionaries.MyDict[0.0]}";
-                                b1 = $"{Dictionaries.MyDict[0.0]}";
-                                c1 = $"{Dictionaries.MyDictReverse[0.0]}";
-                                f1 = $"{Dictionaries.MyDictReverse[j / 10.0]}";
-                            }
-                            string defaultData =
-                                $"{a1}," +
-                                $"{b1}," +
-                                $"{c1}," +
-                                $"{f1},0";
+                            string a1 = finger == 0 ? $"{Dictionaries.DictIndex[roundedI]}" : $"{Dictionaries.DictIndex[0.0]}";
+                            string b1 = finger == 1 ? $"{Dictionaries.DictMiddle[roundedI]}" : $"{Dictionaries.DictMiddle[0.0]}";
+                            string c1 = finger == 2 ? $"{Dictionaries.DictRing[roundedI]}" : $"{Dictionaries.DictRing[0.0]}";
+                            string f1 = finger == 3 ? $"{Dictionaries.DictPinky[roundedI]}" : $"{Dictionaries.DictPinky[0.0]}";
+
+                            string defaultData = $"{a1},{b1},{c1},{f1},{a1}";
                             Notifications.GetNotifications().InvokeCommonStatus(defaultData, Notifications.NotificationEvents.ConnectionPort);
-                            Thread.Sleep(400);
+                            Thread.Sleep(sleep);
                             SendPort(defaultData);
                         }
-                    }
 
+                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                Notifications.GetNotifications().InvokeCommonStatus("Не удалось подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
-
+                ClosePort();
+                MainWindowViewModel.Log.Error($"\nОшибка в демо : {ex}");
+                Notifications.GetNotifications().InvokeCommonStatus("Не удалось подключиться к устройству " + ex.Message, Notifications.NotificationEvents.NotConnectionPort);
             }
         }
 
@@ -265,7 +219,7 @@ namespace MRTest.Services
                 _udpClientService.StartPing();
                 Notifications.GetNotifications().InvokeCommonStatus("Подключение к устройству", Notifications.NotificationEvents.ConnectionPort);
                 OpenPort(port);
-                Notifications.GetNotifications().InvokeCommonStatus("Разожмите руку и удерживайте",Notifications.NotificationEvents.CalibrateMin);
+                Notifications.GetNotifications().InvokeCommonStatus("Разожмите руку и удерживайте", Notifications.NotificationEvents.CalibrateMin);
                 Thread.Sleep(2000);
                 _calibrationService.CalibrateMin(_serialPortService, _udpClientService);
                 Notifications.GetNotifications().InvokeCommonStatus("Сожмите руку и удерживайте", Notifications.NotificationEvents.CalibrateMax);
@@ -274,9 +228,9 @@ namespace MRTest.Services
                 ClosePort();
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(ex.Message.Contains("Удаленный хост"))
+                if (ex.Message.Contains("Удаленный хост"))
                 {
                     Notifications.GetNotifications().InvokeCommonStatus("Убедитесь, что перчатка Senso подключена", Notifications.NotificationEvents.NotConnectionPort);
                 }
@@ -284,9 +238,9 @@ namespace MRTest.Services
             }
         }
 
-       
 
-        public bool StartTracking(CancellationToken cancellationToken,string com)
+
+        public bool StartTracking(CancellationToken cancellationToken, string com)
         {
             try
             {
@@ -308,28 +262,37 @@ namespace MRTest.Services
                         {
                             _positionProcessor.ProcessPosition(receiveData, _serialPortService);
                         }
-
+                        receiveData = null;
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        if(ex.Message.Contains("Удаленный хост"))
+                        MainWindowViewModel.Log.Error($"\nОшибка при работе перчатки: {ex}");
+
+                        if (ex.Message.Contains("Удаленный хост"))
                         {
                             Notifications.GetNotifications().InvokeCommonStatus("Убедитесь, что перчатка Senso подключена", Notifications.NotificationEvents.NotConnectionPort);
 
+                        }
+                        else if(ex.Message.Contains("Serial port is not open."))
+                        {
+                            Notifications.GetNotifications().InvokeCommonStatus("Убедитесь, что перчатка MirroRehab подключена", Notifications.NotificationEvents.NotConnectionPort);
                         }
                         else
                         {
                             Notifications.GetNotifications().InvokeCommonStatus("Что то пошло не так", Notifications.NotificationEvents.NotConnectionPort);
                         }
-                       
+
                         ClosePort();
                         break;
                     }
                 }
                 return true;
             }
-            catch
+            catch(Exception ex)
             {
+
+                MainWindowViewModel.Log.Error($"\nОшибка при работе перчатки: {ex}");
+
                 Notifications.GetNotifications().InvokeCommonStatus("Не удалось подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
                 return false;
             }

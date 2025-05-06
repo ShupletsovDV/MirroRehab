@@ -4,10 +4,14 @@ using Microsoft.Win32;
 using MRTest.Infrastructure.Commands;
 using MRTest.Interfaces;
 using MRTest.Services;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Management;
 using System.Media;
 using System.Text;
@@ -32,6 +36,7 @@ namespace MRTest.ViewModels
         private HandController1 handController;
         private Notifications notifications;
 
+        public static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
 
         #region Свойства
@@ -184,37 +189,50 @@ namespace MRTest.ViewModels
         {
             try
             {
-                if (string.IsNullOrEmpty(SelectedComPort))
+                try
                 {
-                    return;
-                }
-                comPort = string.IsNullOrEmpty(comPort) ? SelectedComPort.Split(" ")[0] : comPort;
+                    SerialPortService serialPortService = SerialPortService.GetInstance();
+                    serialPortService.OpenPort(comPort);
+                    new SettingsWindow(serialPortService).ShowDialog();
 
-                var chekPort = await Task.Run(() => handController.CheckPort(comPort));
-                if (chekPort)
-                {
-                    var succesCalibration = await Task.Run(() => handController.CalibrateDevice(comPort));
-                    if (succesCalibration)
-                    {
-                        Notifications_OnCommonPushpin("Устройство откалибровано", Notifications.NotificationEvents.Success);
-                    }
-                    else
-                    {
-                        ErrorSound();
-                        //Notifications_OnCommonPushpin("Что то пошло не так", Notifications.NotificationEvents.NotConnectionPort);
-                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    ErrorSound();
-                    Notifications_OnCommonPushpin("Не удается подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
+                    MessageBox.Show(ex.Message);
+                    Log.Error($"\nОшибка при запуске калибровки: {ex}");
                 }
+
+                /* if (string.IsNullOrEmpty(SelectedComPort))
+                 {
+                     return;
+                 }
+                 comPort = string.IsNullOrEmpty(comPort) ? SelectedComPort.Split(" ")[0] : comPort;
+
+                 var chekPort = await Task.Run(() => handController.CheckPort(comPort));
+                 if (chekPort)
+                 {
+                     var succesCalibration = await Task.Run(() => handController.CalibrateDevice(comPort));
+                     if (succesCalibration)
+                     {
+                         Notifications_OnCommonPushpin("Устройство откалибровано", Notifications.NotificationEvents.Success);
+                     }
+                     else
+                     {
+                         ErrorSound();
+                         //Notifications_OnCommonPushpin("Что то пошло не так", Notifications.NotificationEvents.NotConnectionPort);
+                     }
+                 }
+                 else
+                 {
+                     ErrorSound();
+                     Notifications_OnCommonPushpin("Не удается подключиться к устройству", Notifications.NotificationEvents.NotConnectionPort);
+                 }*/
 
 
             }
             catch (Exception ex)
             {
-               
+                Log.Error($"\nОшибка при запуске калибровки: {ex}");
                 if (ex.Message.Contains("Object reference not set to an instance of an object"))
                 {
                     ////MessageBox.Show("Выберите устройство!");
@@ -245,14 +263,22 @@ namespace MRTest.ViewModels
         public ICommand StartBtnCommand { get; set; }
         private async void OnStartBtnCommandExecuted(object p)
         {
-
-            Notifications_OnCommonPushpin("Запуск...", Notifications.NotificationEvents.ConnectionPort);
-            _cancellationTokenSource = new CancellationTokenSource();
-          
-            var start= await Task.Run(()=>handController.StartTracking(_cancellationTokenSource.Token, comPort));
-            if(!start)
+            try
             {
-                ErrorSound();
+
+
+
+                Notifications_OnCommonPushpin("Запуск...", Notifications.NotificationEvents.ConnectionPort);
+                _cancellationTokenSource = new CancellationTokenSource();
+
+                var start = await Task.Run(() => handController.StartTracking(_cancellationTokenSource.Token, comPort));
+                if (!start)
+                {
+                    ErrorSound();
+                }
+            }catch(Exception ex)
+            {
+                Log.Error($"\nОшибка при запуске перчатки: {ex}");
             }
         }
         private bool CanStartBtnCommandExecute(object p) => true;
@@ -263,7 +289,7 @@ namespace MRTest.ViewModels
         private void OnHelpBtnCommandExecuted(object p)
         {
           
-           handController.DefaultMirro( comPort);
+           handController.DefaultMirro(comPort);
 
         }
         private bool CanHelpBtnCommandExecute(object p) => true;
@@ -311,6 +337,26 @@ namespace MRTest.ViewModels
         private bool CanDemoBtnCommandExecute(object p) => true;
         #endregion
 
+
+        #region Команда кнопки настроек
+        public ICommand SettingsBtnCommand { get; set; }
+        private void OnSettingsBtnCommandExecuted(object p)
+        {
+            try
+            {
+                SerialPortService serialPortService = SerialPortService.GetInstance();
+                serialPortService.OpenPort(comPort);
+                new SettingsWindow(serialPortService).ShowDialog();
+
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                Log.Error($"\nОшибка при запуске калибровки: {ex}");
+            }
+        }
+        private bool CanSettingsBtnCommandExecute(object p) => true;
+        #endregion
         #endregion
 
         public MainWindowViewModel()
@@ -321,12 +367,97 @@ namespace MRTest.ViewModels
                 InitializeCommands();
                 SubscribeToNotifications();
                 Search();
+
+                /*Dictionaries.DictIndex =  Dictionaries.RedistributeValues(Dictionaries.MyDict, 0, 120);
+                Dictionaries.DictMiddle = Dictionaries.RedistributeValues(Dictionaries.MyDictReverse, 120, 0,true);
+                Dictionaries.DictRing = Dictionaries.RedistributeValues(Dictionaries.MyDict, 0, 120);
+                Dictionaries.DictPinky = Dictionaries.RedistributeValues(Dictionaries.MyDictReverse, 120, 0,true);
+
+
+
+                Dictionaries.DictIndexRigth = Dictionaries.RedistributeValues(Dictionaries.MyDictReverse, 120, 0,true);
+                Dictionaries.DictMiddleRigth = Dictionaries.RedistributeValues(Dictionaries.MyDict, 0, 120);
+                Dictionaries.DictRingRigth = Dictionaries.RedistributeValues(Dictionaries.MyDictReverse, 120, 0,true);
+                Dictionaries.DictPinkyRigth = Dictionaries.RedistributeValues(Dictionaries.MyDict, 0, 120);*/
+
+                LoadSettings("settings.json");
+
+                Log.Debug($"\nПриложение запущено");
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 ErrorSound();
+                Log.Error($"\nОшибка при запуске: {ex}");
             }
+        }
+        
+        private void LoadSettings(string filePath)
+        {
+            try
+            {
+                string json = File.ReadAllText(filePath);
+                var fingers = JsonConvert.DeserializeObject<FingerSettings>(json);
+
+                Dictionaries.MaxIndex = fingers.MaxIndex;
+                Dictionaries.MinIndex = fingers.MinIndex;
+
+                Dictionaries.MaxMiddle = fingers.MaxMiddle;
+                Dictionaries.MinMiddle = fingers.MinMiddle;
+
+                Dictionaries.MaxRing = fingers.MaxRing;
+                Dictionaries.MinRing = fingers.MinRing;
+
+                Dictionaries.MaxPinky = fingers.MaxPinky;
+                Dictionaries.MinPinky = fingers.MinPinky;
+
+
+
+                Dictionaries.MaxIndexRight = fingers.MaxIndexRight;
+                Dictionaries.MinIndexRight = fingers.MinIndexRight;
+
+                Dictionaries.MaxMiddleRight = fingers.MaxMiddleRight;
+                Dictionaries.MinMiddleRight = fingers.MinMiddleRight;
+
+                Dictionaries.MaxRingRight = fingers.MaxRingRight;
+                Dictionaries.MinRingRight = fingers.MinRingRight;
+
+                Dictionaries.MaxPinkyRight = fingers.MaxPinkyRight;
+                Dictionaries.MinPinkyRight = fingers.MinPinkyRight;
+
+
+
+
+                /*MessageBox.Show($"{Dictionaries.MinIndex}  {Dictionaries.MaxIndex}\n" +
+                    $"{Dictionaries.MinMiddle}  {Dictionaries.MaxMiddle}\n" +
+                    $"{Dictionaries.MinRing}  {Dictionaries.MaxRing}\n" +
+                    $"{Dictionaries.MinPinky}  {Dictionaries.MaxPinky}\n" +
+
+                    $"{Dictionaries.MinIndexRight}  {Dictionaries.MaxIndexRight}\n" +
+                    $"{Dictionaries.MinMiddleRight}  {Dictionaries.MaxMiddleRight}\n" +
+                    $"{Dictionaries.MinRingRight}  {Dictionaries.MaxRingRight}\n" +
+                    $"{Dictionaries.MinPinkyRight}  {Dictionaries.MaxPinkyRight}\n");*/
+
+
+
+                Dictionaries.DictIndex = Dictionaries.RedistributeValues(Dictionaries.MyDict, Dictionaries.MinIndex, Dictionaries.MaxIndex);
+                Dictionaries.DictMiddle = Dictionaries.RedistributeValues(Dictionaries.MyDictReverse, Dictionaries.MinMiddle, Dictionaries.MaxMiddle, true);
+                Dictionaries.DictRing = Dictionaries.RedistributeValues(Dictionaries.MyDict, Dictionaries.MinRing, Dictionaries.MaxRing);
+                Dictionaries.DictPinky = Dictionaries.RedistributeValues(Dictionaries.MyDictReverse, Dictionaries.MinPinky, Dictionaries.MaxPinky, true);
+
+
+
+                Dictionaries.DictIndexRight = Dictionaries.RedistributeValues(Dictionaries.MyDictReverse, Dictionaries.MinIndexRight, Dictionaries.MaxIndexRight, true);
+                Dictionaries.DictMiddleRight = Dictionaries.RedistributeValues(Dictionaries.MyDict, Dictionaries.MinMiddleRight, Dictionaries.MaxMiddleRight);
+                Dictionaries.DictRingRight = Dictionaries.RedistributeValues(Dictionaries.MyDictReverse, Dictionaries.MinRingRight, Dictionaries.MaxRingRight, true);
+                Dictionaries.DictPinkyRight = Dictionaries.RedistributeValues(Dictionaries.MyDict, Dictionaries.MinPinkyRight, Dictionaries.MaxPinkyRight);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
         }
         private void SubscribeToNotifications()
         {
@@ -349,6 +480,7 @@ namespace MRTest.ViewModels
             StopBtnCommand = new LambdaCommand(OnStopBtnCommandExecuted, CanStopBtnCommandExecute);
             HelpBtnCommand = new LambdaCommand(OnHelpBtnCommandExecuted, CanHelpBtnCommandExecute);
             DemoBtnCommand = new LambdaCommand(OnDemoBtnCommandExecuted, CanDemoBtnCommandExecute);
+            SettingsBtnCommand = new LambdaCommand(OnSettingsBtnCommandExecuted, CanSettingsBtnCommandExecute);
         }
         private void Notifications_OnCommonPushpin(string message, Notifications.NotificationEvents notificationEvents)
         {
